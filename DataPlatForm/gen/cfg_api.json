@@ -1,0 +1,13 @@
+{
+	"modelPackage":"com.asus.oneui.model",
+	"apiPackage":"com.asus.oneui.api",
+	"basePackage":"com.asus.oneui",
+	"hideGenerationTimestamp":true,
+	"useBeanValidation":true,
+	"groupId":"com.asus.oneui",
+	"artifactId":"one-api",
+	"dateLibrary":"java8",
+	"interfaceOnly":true,
+	"useOptional":true,
+	"swaggerDocketConfig":true
+}

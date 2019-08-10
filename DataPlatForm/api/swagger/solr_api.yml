@@ -1,0 +1,1734 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: ASUS Aliyun API
+basePath: /api/solr
+host: api.asus.com
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  apiKey:
+    type: apiKey
+    name: api-key
+    in: header
+
+paths:
+
+  /check/account/exists:
+    get:
+      tags:
+        - Check API
+      summary: check user login profile and ali account exists or not.
+      parameters:
+        - name: user_name
+          description: user name in aliyun
+          in: query
+          required: true
+          type: string
+          default: claire_test
+      responses:
+          "200":
+            content:
+              application/json:
+                exists:
+                  type: string
+          default:
+            description: unexpected error
+            content:
+                schema:
+                  $ref: '#/definitions/ErrorSchema'
+  /glossary/:
+    get:
+      tags:
+        - Solr API
+      summary: Return description by key.
+      parameters:
+        - name: key
+          description: Glossary of key terms.
+          in: query
+          required: true
+          type: string
+          example: part_no
+      responses:
+          "200":
+            description: Return glossary successful!
+            schema:
+              type: array
+              items:
+                    $ref: '#/definitions/GlossaryResponse'
+          default:
+            description: unexpected error
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /golden/search/:
+    post:
+      tags:
+        - Solr API
+      summary: Search table tags by keywords.
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields (e.g. keywords)
+          in: body
+          type: object
+          schema:
+            type: object
+            $ref: '#/definitions/GoldenSchema'
+      responses:
+        "200":
+          description: Return searching results successful!
+          schema:
+            $ref: '#/definitions/GoldenSearchResponse'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /autocomplete/tag/:
+    get:
+      tags:
+        - Solr API
+      summary: Search tags applications is suggesting query terms or phrases based on incomplete user input.
+      parameters:
+        - name: tag
+          description: A label describing table.
+          in: query
+          required: true
+          type: string
+      responses:
+          "200":
+            description: Return suggest query terms successful!
+            schema:
+              $ref: '#/definitions/KeywordTagResponse'
+          default:
+            description: unexpected error
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /search/tag/:
+    get:
+      tags:
+        - Solr API
+      summary: Return group of tag terms.
+      responses:
+          "200":
+            description: Return facet result successful!
+            schema:
+              $ref: '#/definitions/KeywordTagResponse'
+          default:
+            description: unexpected error
+            content:
+                schema:
+                  $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /search/role/:
+    get:
+      tags:
+        - Solr API
+      summary: Return group of role terms.
+      responses:
+          "200":
+            description: Return facet result successful!
+            schema:
+              $ref: '#/definitions/RoleTagResponse'
+          default:
+            description: unexpected error
+            content:
+                schema:
+                  $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /autocomplete/search/:
+    get:
+      tags:
+        - Solr API
+      summary: Search applications is suggesting query terms or phrases based on incomplete user input.
+      parameters:
+        - name: keyword
+          description: search keywords
+          in: query
+          required: true
+          type: string
+      responses:
+          "200":
+            description: Return suggest query terms successful!
+            schema:
+              $ref: '#/definitions/KeywordSearchResponse'
+          default:
+            description: unexpected error
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /search/:
+    post:
+      tags:
+        - Solr API
+      summary: Search table schema, partition schema and project details by keywords.
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields (e.g. keywords)
+          in: body
+          type: object
+          schema:
+            type: object
+            $ref: '#/definitions/SearchSchema'
+      responses:
+        "200":
+          description: Return searching results successful!
+          schema:
+            $ref: '#/definitions/SearchResponse'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /user/password/reset/:
+      get:
+        tags:
+          - User Manage API
+        summary: Request for changing aliyun password.
+        parameters:
+        - name: user_name
+          in: query
+          required: true
+          type: string
+          default: claire_test
+        responses:
+          "200":
+            description: Return temporarily password.
+            content:
+              text/plain:
+                schema:
+                  type: string
+          default:
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+        security:
+          - apiKey: []
+  /user/account/delete/:
+    post:
+      tags:
+        - User Manage API
+      summary: Delete aliyun account, login account and remove from project dp_cdm_dev and dp_ads_dev
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields.
+          in: body
+          type: object
+          schema:
+            properties:
+              user_name:
+                description: user name in aliyun
+                type: array
+                items:
+                  type: string
+                example: [claire_test]
+      responses:
+        "200":
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /user/account/create/:
+    post:
+      tags:
+        - User Manage API
+      summary: Create aliyun account, login account and add to project dp_cdm_dev and dp_ads_dev.
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields
+          in: body
+          type: object
+          schema:
+            type: object
+            $ref: '#/definitions/UserCreateSchema'
+      responses:
+        "200":
+          description: Return searching results successful!
+          schema:
+            $ref: '#/definitions/UserCreateResponse'
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+
+  /user/account/setaccesskey/:
+    post:
+      tags:
+        - User Manage API
+      summary: set aliyun accesskey ID and accessscret key
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields.
+          in: body
+          type: object
+          schema:
+            properties:
+              user_name:
+                description: user name in aliyun
+                type: string
+                example: claire_test
+                required: true
+              password:
+                description: password in aliyun
+                type: string
+                example: XDFDFD54f
+              accessId:
+                type: string
+              accessKey:
+                type: string
+      responses:
+        "200":
+            description: OK
+            content:
+              text/plain:
+                schema:
+                  type: string
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /user/table/permissions:
+    get:
+      tags:
+        - User Manage API
+      summary: check table permissions.
+      parameters:
+        - name: user_name
+          description: user name in aliyun
+          in: query
+          type: string
+          default: claire_test
+      responses:
+          "200":
+            description: OK
+            content:
+              text/plain:
+                schema:
+                  type: string
+          default:
+            description: unexpected error
+            content:
+                schema:
+                  $ref: '#/definitions/ErrorSchema'
+  /user/roles/search/:
+    get:
+      tags:
+        - User Manage API
+      summary: Return user all role name.
+      parameters:
+        - name: user_name
+          description: user name in aliyun
+          in: query
+          required: true
+          type: string
+          default: claire_test
+        - name: project_name
+          description: The project name user exist in aliyun
+          in: query
+          required: true
+          type: string
+          default: dp_ads_dev
+      responses:
+          "200":
+            description: Return roles successful!
+            schema:
+              type: object
+              properties:
+                roles:
+                  description: Result of User's roles in aliyun.
+                  type: array
+                  items:
+                    type: string
+          default:
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /user/auth/control/:
+      post:
+        tags:
+          - User Manage API
+        summary: Request for aliyun access authorization.
+        parameters:
+        - name: body_parameters
+          description: Please fill in all required fields.
+          in: body
+          type: object
+          schema:
+            type: object
+            $ref: '#/definitions/UserAuthSchema'
+        responses:
+          "200":
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    type: string
+          default:
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+        security:
+          - apiKey: []
+  /user/account/recreate:
+    get:
+      tags:
+        - User Manage API
+      summary: recreate user that had been disabled.
+      parameters:
+        - name: user_name
+          description: user name or user id in aliyun
+          in: query
+          required: true
+          type: string
+          default: claire_test
+      responses:
+          "200":
+            description: Return searching results successful!
+            schema:
+              $ref: '#/definitions/UserCreateResponse'
+          default:
+            description: unexpected error
+            content:
+                schema:
+                  $ref: '#/definitions/ErrorSchema'
+  /user/account/disable/:
+    post:
+      tags:
+        - User Manage API
+      summary: Disable aliyun account and login account
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields.
+          in: body
+          type: object
+          schema:
+            properties:
+              user_name:
+                description: user name in aliyun
+                type: array
+                items:
+                  type: string
+                example: [claire_test]
+      responses:
+        "200":
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /project/adduser/:
+      post:
+        tags:
+          - User Manage API
+        summary: Request for aliyun access authorization.
+        parameters:
+        - name: body_parameters
+          description: Please fill in all required fields
+          in: body
+          type: object
+          schema:
+            type: object
+            $ref: '#/definitions/ProjectAddSchema'
+        responses:
+          "200":
+            schema:
+              type: object
+              properties:
+                id:
+                  type: array
+                  items:
+                    type: string
+          default:
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+        security:
+          - apiKey: []
+  /health:
+    get:
+      tags:
+        - Common API
+      summary: health check
+      responses:
+          "200":
+            description: health check!
+            content:
+              application/json:
+                schema:
+                  type: string
+          default:
+            description: unexpected error
+            content:
+                schema:
+                  $ref: '#/definitions/ErrorSchema'
+  /selenium/reset:
+    post:
+      tags:
+      - Common API
+      summary: Reset selenium
+      responses:
+        "200":
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+      - apiKey: []
+  /cache/reset:
+    post:
+      tags:
+      - Common API
+      summary: Reset cache
+      responses:
+        "200":
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+      - apiKey: []
+  /forum/url:
+    get:
+      tags:
+        - forum API
+      summary: get forum url
+      parameters:
+        - name: id
+          description: table unique id
+          in: query
+          required: true
+          type: string
+          example: project_one.crm_ems_awd
+      responses:
+          "200":
+            description: forum url
+            schema:
+              $ref: '#/definitions/ForumResponse'
+          default:
+            description: unexpected error
+            content:
+                schema:
+                  $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /user/privilege/apply/:
+      post:
+        tags:
+          - User Manage API
+        summary: user privilege apply
+        parameters:
+        - name: body_parameters
+          description: Please fill in all required fields.
+          in: body
+          type: object
+          schema:
+            properties:
+              user_name:
+                description: user name in aliyun
+                type: string
+                example: claire_test
+                required: true
+              project_name:
+                description: project name in aliyun
+                type: string
+                example: dp_ads_dev
+                required: true
+              table_name:
+                description: table name in aliyun
+                type: string
+                example: s_test_
+                required: true
+              apply_reason:
+                description: apply reason
+                type: string
+                example: for test
+                required: true
+              apply_period:
+                description: apply_period (day)
+                type: string
+                example: "1"
+        responses:
+          "200":
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+          default:
+            schema:
+              $ref: '#/definitions/ErrorSchema'
+        security:
+          - apiKey: []
+
+  /mail/template/:
+    post:
+      tags:
+        - Mail API
+      summary: return html templete by notice_std.html template
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields.
+          in: body
+          type: object
+          schema:
+            properties:
+              first_title:
+                description: The First Title of mail.
+                type: string
+                example: ASUS 資料平台帳戶管理
+              sub_title:
+                description: The Second Title of mail.
+                type: string
+                example: ASUS DATA PLATFORM ACCOUNT MANAGEMENT
+              subject_content:
+                description: Subject content by subject area
+                type: array
+                items:
+                  type: string
+                example: [同仁離職，則凍結於資料平台上的帳號。]
+              desc_content:
+                description: Description content by description area
+                type: array
+                items:
+                  type: string
+                example: [凍結以下同仁帳號：claire_test]
+      responses:
+        "200":
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+  /mail/alert/:
+    post:
+      tags:
+      - Mail API
+      summary: send alert mail
+      parameters:
+      - name: body_parameters
+        description: Please fill in all required fields.
+        in: body
+        type: object
+        schema:
+          properties:
+            user_name:
+              description: user name in aliyun
+              type: string
+              example: claire_test
+              required: true
+            project_name:
+              description: project name in aliyun
+              type: string
+              example: dp_ads
+              required: true
+            table_name:
+              description: table name in aliyun
+              type: string
+              example: ads_dl_ebs_dist_po_xx_po_receipts_info_v
+              required: true
+            apply_reason:
+              description: apply reason
+              type: string
+              example: for test
+              required: true
+            alert_type:
+              description: alert_type
+              type: string
+              example: sensitive
+              required: true
+            task_id:
+              description: task_id
+              type: string
+              example: 20181211021259232g39gn5ra
+            task_sql:
+              description: task_sql
+              type: string
+              example: select
+            workers:
+              description: task workers
+              type: integer
+              example: 1234
+
+      responses:
+        "200":
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+        default:
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+      - apiKey: []
+  /datamarket/dataset/report/create:
+    post:
+      tags:
+        - Data Market
+      parameters:
+        - name: data
+          in: body
+          description: "create report and send mail"
+          schema:
+            $ref: "#/definitions/ReportRequest"
+          required: true
+      operationId: createReport
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+  /dataset/{id}/column/values:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    post:
+      tags:
+        - Solr API
+      operationId: queryColumnValue
+      description: "queryColumnValue"
+      parameters:
+        - name: data
+          in: body
+          schema:
+            $ref: "#/definitions/QueryColumnValues"
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/SimpleResultSet'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+  /dataset/{id}/column/statistic:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    post:
+      tags:
+        - Solr API
+      operationId: getColumnStatistic
+      description: "getColumnStatistic"
+      parameters:
+        - name: data
+          in: body
+          schema:
+            $ref: "#/definitions/QueryColumnStatistic"
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/ColumnStatistic'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+  /dataset/{id}/column/range:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    post:
+      tags:
+        - Solr API
+      operationId: getColumnRange
+      description: "getColumnRange"
+      parameters:
+        - name: data
+          in: body
+          schema:
+            $ref: "#/definitions/QueryColumnRange"
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/ColumnRange'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /user/ad_account/autocomplete:
+      get:
+        tags:
+          - User Manage API
+        summary: Suggesting query terms or phrases based on incomplete user input.
+        parameters:
+          - name: keyword
+            in: query
+            required: true
+            type: string
+        responses:
+            "200":
+              description: Return suggest query terms successful!
+              schema:
+                $ref: '#/definitions/AutoCompleteResponse'
+            default:
+              description: unexpected error
+              schema:
+                $ref: '#/definitions/ErrorSchema'
+        security:
+          - apiKey: []
+  /user/ad_account/search/:
+    post:
+      tags:
+        - User Manage API
+      summary: Search ad account infomation from solr by keywords.
+      parameters:
+        - name: body_parameters
+          description: Please fill in all required fields (e.g. keywords)
+          in: body
+          type: object
+          schema:
+            type: object
+            $ref: '#/definitions/ADAccountSearchSchema'
+      responses:
+        "200":
+          description: Return searching results successful!
+          schema:
+            $ref: '#/definitions/ADAccountSearchResponse'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorSchema'
+      security:
+        - apiKey: []
+
+  /dashboard/view/list:
+    parameters:
+    - name: q
+      in: query
+      description: "query string"
+      type: array
+      items:
+        type: string
+      required: false
+    get:
+      consumes: []
+      tags: 
+        - Dashboard
+      operationId: queryDashboardViews
+      description: "query Tableau views"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DashboardList"
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+        
+  /dashboard/view/{url}:
+    parameters:
+    - name: url
+      in: path
+      description: "get Tableau content Url"
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dashboard
+      operationId: getDashboardUrl
+      description: "get Tableau dashboard url"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Dashboard"
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+definitions:
+  QueryColumnValues:
+    required:
+      - col_name
+    properties:
+      user:
+        type: string
+      col_name:
+        type: string
+      q:
+        type: string
+      cond_clause:
+        type: string
+      orderby:
+        type: string
+        enum: [column, count]
+      sort:
+        type: string
+        enum: [asc,desc]
+      offset:
+        type: integer
+        default: 0
+        format: int64
+      limit:
+        type: integer
+        default: 100
+        format: int32        
+  SimpleResultSet:
+    properties:
+      data:
+        type: array
+        items:
+          type: string
+      user_auth:
+        type: boolean
+  ColumnStatistic:
+    properties:
+      start:
+        type: string
+      end:
+        type: string
+      mean:
+        type: string
+      median:
+        type: string
+      stddev:
+        type: string
+      stddev_p1:
+        type: string
+      stddev_p2:
+        type: string
+      stddev_p3:
+        type: string
+      stddev_n1:
+        type: string
+      stddev_n2:
+        type: string
+      stddev_n3:
+        type: string
+      dim_sum:
+        type: string
+      dim_value_count:
+        type: string
+      dim_value_percent:
+        type: string
+      dim_dist_count:
+        $ref: "#/definitions/RangeValueList"
+      dim_dist_percent:
+        $ref: "#/definitions/RangeValueList"
+      num_dist_count:
+        $ref: "#/definitions/RangeValueList"
+      num_dist_percent:
+        $ref: "#/definitions/RangeValueList"
+  ColumnRange:
+    properties:
+      start:
+        type: string
+      end:
+        type: string
+  RangeValueList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/RangeValue"
+  RangeValue:
+    properties:
+      range:
+        type: string
+      value:
+        type: string
+  QueryColumnStatistic:
+    required:
+      - col_name
+    properties:
+      user:
+        type: string
+      q:
+        type: string
+      col_name:
+        type: string
+      col_filter:
+        type: string
+        enum: [dim,int]
+      col_type:
+        type: string
+        enum: [string,number,date,product]
+      cond_clause:
+        type: string
+  QueryColumnRange:
+    required:
+      - col_name
+    properties:
+      col_name:
+        type: string
+      cond_clause:
+        type: string
+
+  User:
+    properties:
+      workId:
+        type: string
+      userId:
+        type: string
+      domain:
+        type: string
+      name:
+        type: string
+      auth:
+        $ref: "#/definitions/Auth"
+      config:
+        $ref: "#/definitions/Config"
+      auth_role:
+        type: array
+        items:
+          type: string
+          enum: [pm,sales]
+  Auth:
+    properties:
+      bg:
+        type: array
+        items:
+          type: string
+      territory:
+        type: array
+        items:
+          type: string
+      region:
+        type: array
+        items:
+          type: string
+      branch:
+        type: array
+        items:
+          type: string
+      country:
+        type: array
+        items:
+          type: string
+      product_line:
+        type: array
+        items:
+          type: string
+  Config:
+    properties:
+      preview_rowCount:
+        default: 100
+        type: integer
+        format: int64
+      export_rowCount:
+        default: 0
+        type: integer
+        format: int64
+  AuthType:
+    properties:
+      auth_type:
+        type: string
+        enum: [bg,country,territory,branch,region,product_line,role]
+
+  UserCreateSchema:
+    properties:
+      user_name:
+        type: string
+      display_name:
+        type: string
+      email:
+        type: string
+        format: email
+      comments:
+        type: string
+      group_name:
+        type: string
+      project_role:
+        type: object
+    example:
+      user_name: claire_test
+      display_name: claire_test
+      email: clairewj_Lee@asus.com
+      project_role: {dp_ads_dev: [role_project_dev, role_project_dev_asus], dp_ads: [role_project_guest, role_project_dev_asus]}
+      comments: example
+  UserCreateResponse:
+    type: object
+    required:
+      - DisplayName
+      - UserId
+      - UserName
+    properties:
+      Comments:
+        type: string
+      CreateDate:
+        type: string
+      DisplayName:
+        type: string
+      Email:
+        type: string
+      LastLoginDate:
+        type: string
+      MobilePhone:
+        type: string
+      UpdateDate:
+        type: string
+      UserId:
+        type: string
+      UserName:
+        type: string
+      Status:
+        type: string
+      PassWord:
+        type: string
+
+  RoleTagResponse:
+    type: object
+    properties:
+      role:
+        description: Return All used role.
+        type: array
+        items:
+          type: string
+  KeywordTagResponse:
+    type: object
+    properties:
+      tag:
+        description: Result of Tags from user's input.
+        type: array
+        items:
+          type: string
+  AutoCompleteResponse:
+    type: object
+    properties:
+      keyword:
+        description: Result of Tags from user's input.
+        type: array
+        items:
+          type: object
+  KeywordSearchResponse:
+    type: object
+    properties:
+      keyword:
+        description: Result of search keywords from user's input.
+        type: array
+        items:
+          $ref: '#/definitions/DataSchema'
+  GlossaryResponse:
+    type: object
+    required:
+      - desc
+      - _id
+      - last_updated
+      - key
+    properties:
+      desc:
+        description: The description of key.
+        type: array
+        items:
+          type: string
+      _id:
+        description: Glossary unique id.
+        type: string
+      key:
+        description: Glossary of key terms.
+        type: string
+      last_updated:
+        description: The last updated date of glossary.
+        type: string
+  SearchResponse:
+    type: object
+    properties:
+      offset:
+        type: integer
+      numFound:
+        type: integer
+      docs:
+        type: array
+        items:
+          $ref: '#/definitions/DocsSchema'
+      responseTime:
+        type: integer
+  GoldenSearchResponse:
+    type: object
+    properties:
+      offset:
+        type: integer
+      numFound:
+        type: integer
+      docs:
+        type: array
+        items:
+          $ref: '#/definitions/GoldenDocsSchema'
+      responseTime:
+        type: integer
+  ADAccountSearchResponse:
+    type: object
+    properties:
+      offset:
+        type: integer
+      numFound:
+        type: integer
+      docs:
+        type: array
+        items:
+          $ref: '#/definitions/ADAccountDocsSchema'
+      responseTime:
+        type: integer
+  ADAccountDocsSchema:
+    properties:
+      emp_id:
+        type: string
+      domain:
+        type: string
+      en_name:
+        type: string
+      name:
+        type: string
+      company_name:
+        type: string
+      department:
+        type: string
+  ProjectAddSchema:
+    properties:
+      user_name:
+        description: User name in aliyun and acceptable multiple usernames
+        type: array
+        items:
+          type: string
+      project_name:
+        type: string
+      role_name:
+        type: string
+    example:
+      user_name: [claire_test, clairewj_lee]
+      project_name: dp_ads_dev
+      role_name: role_project_guest
+  UserAuthSchema:
+    properties:
+      user_name:
+        type: string
+        description: user name in aliyun
+      project_name:
+        description: The project name user exist in aliyun
+        type: string
+      role_name:
+        description: The role name which want to grant/revoke to user and acceptable multiple rolenames
+        type: array
+        items:
+          type: string
+      action:
+        description: authorization control action (grant or revoke)
+        type: string
+    example:
+      user_name: claire_test
+      project_name: dp_ads_dev
+      role_name: [role_project_guest, role_project_dev]
+      action: grant
+  ErrorSchema:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  DocsSchema:
+    properties:
+      _id:
+        type: string
+      table_desc:
+        type: string
+      table_name:
+        type: object
+        properties:
+          en_us:
+            type: string
+          zh_tw:
+            type: string
+          id:
+            type: string
+      important:
+        type: integer
+      domain_expert:
+        type: array
+        items:
+          type: string
+      data_maintainer:
+        type: array
+        items:
+          type: string
+      search_tag:
+        type: array
+        items:
+          type: string
+      table_extra:
+        type: array
+        items:
+          type: string
+      main_columns:
+        type: array
+        items:
+          type: string
+      popularity:
+        type: string
+      row_count:
+        type: integer
+      last_updated:
+        type: date
+      table_modified_time:
+        type: date
+      dataworks_detail_url:
+        type: string
+      highlighting:
+        type: string
+      project_name:
+        type: string
+      role:
+        type: string
+      dataset_id:
+        type: string
+  SearchSchema:
+    properties:
+      keywords:
+        type: string
+      sort:
+        description: The sort parameter arranges search results in either ascending (asc) or descending (desc) order. The parameter can be used with either numerical or alphabetical content. The directions can be entered in either all lowercase or all uppercase letters (i.e., both asc or ASC).
+        type: string
+      offset:
+        description: Specifies an offset into a query’s result set and instructs search result to begin displaying results from this offset.
+        type: integer
+        example: 0
+        minimum: 0
+      limit:
+        description: You can use the limit parameter to paginate results from a query. The parameter specifies the maximum number of documents from the complete result set.
+        type: integer
+        minimum: 1
+        default: 1
+      fl:
+        description: Specific return fields.
+        type: string
+      filter:
+        type: object
+        schema:
+          $ref: '#/definitions/SearchFilter'
+    example:
+      keywords: scm
+      offset: 0
+      limit: 100
+      filter:
+        project_name: (dp_ads dp_cdm)
+  ADAccountSearchSchema:
+    properties:
+      keywords:
+        type: string
+      sort:
+        description: The sort parameter arranges search results in either ascending (asc) or descending (desc) order. The parameter can be used with either numerical or alphabetical content. The directions can be entered in either all lowercase or all uppercase letters (i.e., both asc or ASC).
+        type: string
+      offset:
+        description: Specifies an offset into a query’s result set and instructs search result to begin displaying results from this offset.
+        type: integer
+        example: 0
+        minimum: 0
+      limit:
+        description: You can use the limit parameter to paginate results from a query. The parameter specifies the maximum number of documents from the complete result set.
+        type: integer
+        minimum: 1
+        default: 1
+      fl:
+        description: Specific return fields.
+        type: string
+      filter:
+        type: object
+        schema:
+          $ref: '#/definitions/ADAccountSearchFilter'
+    example:
+      keywords: claire
+      offset: 0
+      limit: 100
+      filter:
+        domain: asus
+  GoldenSchema:
+    properties:
+      _id:
+        type: array
+        items:
+          type: string
+        description: Mapping _id from favorite list
+      keywords:
+        type: string
+      sort:
+        description: The sort parameter arranges search results in either ascending (asc) or descending (desc) order. The parameter can be used with either numerical or alphabetical content. The directions can be entered in either all lowercase or all uppercase letters (i.e., both asc or ASC).
+        type: string
+      tag:
+        description: More search condition by tag.
+        type: string
+      offset:
+        description: Specifies an offset into a query’s result set and instructs search result to begin displaying results from this offset.
+        type: integer
+        example: 0
+        minimum: 0
+      limit:
+        description: You can use the limit parameter to paginate results from a query. The parameter specifies the maximum number of documents from the complete result set.
+        type: integer
+        minimum: 1
+        default: 1
+      fl:
+        description: Specific return fields.
+        type: string
+      filter:
+        type: object
+        schema:
+          $ref: '#/definitions/SearchFilter'
+    example:
+      keywords: quantity
+      offset: 0
+      limit: 100
+      tag: Order,Item
+      filter:
+        role: (PM Sales)
+  GoldenDocsSchema:
+    properties:
+      _id:
+        type: string
+      table_desc:
+        type: string
+      table_name:
+        type: object
+        properties:
+          en_us:
+            type: string
+          zh_tw:
+            type: string
+          id:
+            type: string
+      important:
+        type: integer
+      domain_expert:
+        type: array
+        items:
+          type: string
+      data_maintiner:
+        type: array
+        items:
+          type: string
+      matched_tag:
+        type: array
+        items:
+          type: string
+      search_tag:
+        type: array
+        items:
+          type: string
+      table_extra:
+        type: array
+        items:
+          type: string
+      main_columns:
+        type: array
+        items:
+          type: string
+      popularity:
+        type: string
+      row_count:
+        type: integer
+      last_updated:
+        type: date
+      dataworks_detail_url:
+        type: string
+      project_name:
+        type: string
+      role:
+        type: string
+      dataset_id:
+        type: string
+      gp_sync_date:
+        type: date
+      full_table_name:
+        type: boolean
+  DataSchema:
+    properties:
+      data:
+          type: string
+  SearchFilter:
+    properties:
+      project_name:
+          description: MaxCompute project name.
+          type: string
+      table_size:
+          description: Storage size occupied by table data, unit is Byte.
+          type: string
+      table_last_meta_modified_time:
+          description: Last modified date of table schema.
+          type: string
+      table_modified_time:
+          description: Last modified date of table.
+          type: string
+      table_creation_time:
+          description: Created time of table.
+          type: string
+      role:
+        type: string
+      _id:
+        type: string
+      dataset_id:
+        type: string
+  ADAccountSearchFilter:
+    properties:
+      domain:
+        description: ASUS domain.
+        type: string
+      department:
+        description: ASUS department..
+        type: string
+      company_name:
+        description: ASUS chinese company name.
+        type: string
+
+  CommentsSchema:
+    properties:
+      message:
+        type: string
+      name:
+        type: string
+  ForumResponse:
+    type: object
+    properties:
+      url:
+        type: string
+      count:
+        type: integer
+      comments:
+        type: array
+        items:
+          type: object
+          schema:
+            $ref: '#/definitions/CommentsSchema'
+  GoldenCond:
+    required:
+      - column
+      - type
+      - value
+    properties:
+      column:
+        type: string
+      group:
+        type: string
+      exclude:
+        type: boolean
+        default: false
+      type:
+        type: string
+        enum: [string, number, date, product, function]
+      value:
+        type: array
+        items:
+          type: object
+          properties:
+            op:
+              type: string
+              enum: [in, is, eq, gt, gte, lt, lte, like]
+            data:
+              type: array
+              items:
+                type: string
+      condition:
+        type: array
+        items:
+          $ref: "#/definitions/GoldenCond2"
+
+  GoldenCond2:
+    required:
+      - column
+      - type
+      - value
+    properties:
+      column:
+        type: string
+      group:
+        type: string
+      exclude:
+        type: boolean
+        default: false
+      type:
+        type: string
+        enum: [string, number, date, product, function]
+      value:
+        type: array
+        items:
+          type: object
+          properties:
+            op:
+              type: string
+              enum: [in, is, eq, gt, gte, lt, lte, like]
+            data:
+              type: array
+              items:
+                type: string
+
+
+  GoldenQuery:
+    properties:
+      id:
+        type: string
+        description: "dataset id"
+      columns:
+        type: array
+        items:
+          type: string
+      columns_v2:
+        type: array
+        items:
+          type: object
+          properties:
+            sub_query:
+              type: string
+            alias:
+              type: string
+      condition:
+        type: array
+        items:
+          $ref: "#/definitions/GoldenCond"
+      group_by:
+        type: array
+        items:
+          type: string
+      having:
+        type: array
+        items:
+          type: string
+      order_by:
+        type: array
+        items:
+          type: string
+      offset:
+        default: 0
+        description: offset
+        type: integer
+        format: int64
+      limit:
+        default: 100
+        description: limit
+        type: integer
+        format: int64
+      count_only:
+        type: boolean
+        default: true
+      sql_only:
+        type: boolean
+        default: false
+
+  ExportRequest:
+    properties:
+      query:
+        $ref: "#/definitions/GoldenQuery"
+      template_id:
+        type: string
+      file_name:
+        type: string
+      mail_to:
+        type: array
+        items:
+          type: string
+
+  ReportRequest:
+    allOf:
+      - $ref: "#/definitions/ExportRequest"
+      - type: object
+        properties:
+          mail_title:
+            type: string
+          mail_sub_title:
+            type: string
+          subject:
+            type: array
+            items:
+              type: string
+          desc:
+            type: array
+            items:
+              type: string
+          mail_cc:
+            type: array
+            items:
+              type: string
+          mail_bcc:
+            type: array
+            items:
+              type: string
+          role:
+            type: array
+            items:
+              type: string
+
+  Dashboard:
+    properties:
+      url:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+
+  DashboardList:
+    properties:
+      list:
+        type: array
+        items:
+          type: string

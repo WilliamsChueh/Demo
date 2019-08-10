@@ -1,0 +1,71 @@
+{
+    "id": "PROJECT_PATH",
+    "acceptedResourceRoles": [
+      "*"
+    ],
+    "backoffFactor": 1.15,
+    "backoffSeconds": 1,
+    "container": {
+      "portMappings": [{
+        "containerPort": 24000,
+        "hostPort": 0,
+        "protocol": "tcp",
+        "servicePort": 24000
+      }],
+      "type": "DOCKER",
+      "volumes": [{
+          "containerPath": "/etc/localtime",
+          "hostPath": "/etc/localtime",
+          "mode": "RO"
+        }
+      ],
+      "docker": {
+        "image": "DEPLOY_IMAGE",
+        "forcePullImage": true,
+        "privileged": true,
+        "parameters": []
+      }
+    },
+    "cpus": 0.1,
+    "disk": 0,
+    "fetch": [{
+      "uri": "http://misci.asus.com/docker.tar.gz",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    }],
+    "healthChecks": [{
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "portIndex": 0,
+      "timeoutSeconds": 20,
+      "delaySeconds": 15,
+      "protocol": "MESOS_HTTP",
+      "path": "/docs"
+    }],
+    "instances": 1,
+    "labels": {
+      "HAPROXY_GROUP": "internal",
+      "HAPROXY_0_VHOST": "oneui-dev.corpnet.asus",
+      "HAPROXY_0_PATH": "/swagger"
+    },
+    "maxLaunchDelaySeconds": 3600,
+    "mem": 256,
+    "gpus": 0,
+    "networks": [{
+      "mode": "container/bridge"
+    }],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 1,
+      "minimumHealthCapacity": 1
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "constraints": []
+  }
+  

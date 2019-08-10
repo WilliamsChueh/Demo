@@ -1,0 +1,5254 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: ASUS ONE Service
+# during dev, should point to your local machine
+host: 172.16.98.160:24000
+# basePath prefixes all resource paths 
+basePath: /api
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+  
+securityDefinitions:
+  apiKey:
+    type: apiKey
+    name: api-key
+    in: header
+    
+paths:
+  /version:
+    get:
+      consumes: []
+      tags:
+        - common
+      operationId: healthCheck
+      summary: health check endpoint
+      description: retrun version and datetime
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Version"
+            
+  /version/{project_name}:
+    parameters:
+    - name: project_name
+      in: path
+      description: project name
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags:
+        - common
+      operationId: getVersionInfo
+      summary: veriosn info
+      description: retrun version
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: "#/definitions/Version"
+        '400':
+          description: Bad request
+          schema:
+            type: string
+        '404':
+          description: Not found
+          schema:
+            type: string
+
+  /version/{project_name}/reset:
+    parameters:
+    - name: project_name
+      in: path
+      description: project name
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags:
+        - common
+      operationId: resetVersionInfo
+      summary: veriosn info
+      description: retrun version
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Version"
+        '400':
+          description: Bad request
+          schema:
+            type: string
+        '404':
+          description: Not found
+          schema:
+            type: string
+
+  /login:
+    post:
+      tags:
+        - common
+      operationId: login
+      summary: login
+      description: Post login info
+      parameters:
+        - name: loginInfo
+          in: body
+          schema:
+            $ref: "#/definitions/LoginReq"
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/LoginRsp"
+        400:
+          description: (-5) api version error, (-6) not enough input info
+        403:
+          description: Permission denied
+        404:
+          description: Failure
+
+  /login/as:
+    post:
+      tags:
+        - common
+      operationId: loginAs
+      summary: loginAs
+      description: Post login as info
+      parameters:
+        - name: loginInfo
+          in: body
+          schema:
+            $ref: "#/definitions/LoginAsReq"
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/LoginRsp"
+        400:
+          description: (-5) api version error, (-6) not enough input info
+        403:
+          description: Permission denied
+        404:
+          description: Failure
+      security:
+        - apiKey: []
+
+  /login/user-gen:
+    post:
+      tags:
+        - common
+      operationId: loginGen
+      summary: loginGen
+      description: Post login gen pre_token
+      parameters:
+        - in: header
+          name: x-client-ip
+          type: string
+          required: true
+        - name: loginInfo
+          in: body
+          schema:
+            $ref: "#/definitions/LoginAsReq"
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            type: string
+        400:
+          description: (-5) api version error, (-6) not enough input info
+        403:
+          description: Permission denied
+        404:
+          description: Failure
+
+  /login/user:
+    post:
+      tags:
+        - common
+      operationId: loginTo
+      summary: loginTo
+      description: Post login gen api-token
+      parameters:
+        - in: header
+          name: x-client-ip
+          type: string
+          required: true
+        - name: loginTo
+          in: body
+          schema:
+            $ref: "#/definitions/LoginToReq"
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            type: string
+        400:
+          description: (-5) api version error, (-6) not enough input info
+        403:
+          description: Permission denied
+        404:
+          description: Failure
+  
+  /login/whois:    
+    post:
+      tags:
+        - common
+      operationId: whois
+      summary: whois
+      description: Query user from ...
+      parameters:
+      - name: data
+        in: body
+        schema:
+          $ref: "#/definitions/WhoIsReq"
+        required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: (-5) api version error, (-6) not enough input info
+        403:
+          description: Permission denied
+        404:
+          description: Failure
+      security:
+          - apiKey: []
+
+  /search:
+    post:
+      tags:
+        - Search
+      operationId: search
+      description: "search"
+      parameters: 
+        - name: search
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Search'
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/SearchResultSet"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets:
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getDatasets
+      parameters:
+        - name: key
+          in: query
+          description: key
+          type: string
+          required: false
+        - name: tags
+          in: query
+          description: tags
+          type: array
+          items:
+            type: string
+          required: false
+        - name: offset
+          in: query
+          description: offset
+          type: integer
+          format: int64
+          default: 0
+          required: false
+        - name: limit
+          in: query
+          description: key
+          type: integer
+          format: int32
+          default: 100
+          required: false
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DatasetList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getDataset
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Dataset"
+        "404":
+          description: NotFound
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertFiled
+      description: upsert field
+      parameters: 
+        - name: param
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/FieldParam'
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/preview:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: datasetPreview
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ResultSet"
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/trace:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      parameters:
+        - name: type
+          in: query
+          description: type
+          type: string
+          enum: [Important,Startdate,Enddate,Maintainer,DataAdmin,Desc,ColDesc,ColPartition,ColExtra,Extra,Recall,TableName]
+          required: true
+        - name: key
+          in: query
+          description: key
+          type: string
+          required: false
+        - name: offset
+          in: query
+          description: offset
+          type: integer
+          format: int64
+          required: false
+        - name: limit
+          in: query
+          description: limit
+          type: integer
+          format: int32
+          required: false
+      operationId: getTraceList
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/TraceList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+            
+  /datasets/{id}/tags:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getTags
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/TagList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertTag
+      description: upsert tag
+      parameters: 
+        - name: tag
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Tag"
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteTag
+      description: delete tag
+      parameters:
+        - name: name
+          in: query
+          description: key
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+      security:
+        - apiKey: []
+
+  /datasets/{id}/roles:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getRoles
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/RoleList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertRole
+      description: upsert role
+      parameters: 
+        - name: role
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Role"
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteRole
+      description: delete role
+      parameters:
+        - name: name
+          in: query
+          description: key
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+      security:
+        - apiKey: []
+
+  /datasets/{id}/maintainer:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getMaintainer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MaintainerList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertMaintainer
+      description: upsert Maintainer
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Maintainer"
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteMaintainer
+      description: delete Maintainer
+      parameters:
+        - name: name
+          in: query
+          description: key
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+      security:
+        - apiKey: []
+
+  /datasets/{id}/dataAdmin:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getDataAdmin
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DataAdminList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertDataAdmin
+      description: upsert DataAdmin
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/DataAdmin"
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteDataAdmin
+      description: delete DataAdmin
+      parameters:
+        - name: name
+          in: query
+          description: key
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+      security:
+        - apiKey: []
+
+  /datasets/{id}/extras:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getExtras
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ExtraList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertExtra
+      description: upsert extra
+      parameters: 
+        - name: extra
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Extra"
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteExtra
+      description: delete extra
+      parameters:
+        - name: key
+          in: query
+          description: extrakey
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+        
+  /datasets/{id}/descs:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getColumnDescs
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DescList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertColumnDesc
+      description: upsert descs
+      parameters: 
+        - name: desc
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Desc"
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteColumnDesc
+      description: delete descs
+      parameters:
+        - name: col
+          in: query
+          description: column
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/colType:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getColumnTypes
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ColTypeMap"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /datasets/{id}/partitions:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getPartitionDescs
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/PartList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: upsertParttionDesc
+      description: upsert partition
+      parameters: 
+        - name: desc
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Partition"
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deletePartitionDesc
+      description: delete partition
+      parameters:
+        - name: col
+          in: query
+          description: column
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  
+  /datasets/{id}/details:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getColumnDetails
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DetailList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: updateColumnDetail
+      description: update column detail
+      parameters: 
+        - name: extra
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Detail'
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteColumnDetail
+      description: delete column detail
+      parameters:
+        - name: head
+          in: query
+          description: column head
+          type: string
+          required: true
+        - name: col
+          in: query
+          description: column
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/maincols:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getMaincols
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/MainColList'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: updateMainCol
+      description: update Main Column
+      parameters: 
+        - name: extra
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/MainCol'
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteMainCol
+      description: delete Main Column
+      parameters:
+        - name: col
+          in: query
+          description: column
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/datamasks:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getDatamasks
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/DataMaskList'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: updateDataMask
+      description: update DataMask
+      parameters: 
+        - name: extra
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/DataMask'
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteDatamask
+      description: delete Datamask
+      parameters:
+        - name: datamask
+          in: query
+          description: datamask
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/tableName:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    put:
+      tags: 
+        - Dataset
+      operationId: updateTableName
+      description: update table name
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TableName'
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/datasetId:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getDatasetId
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/DatasetId'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: updateDatasetId
+      description: update DatasetId
+      parameters: 
+        - name: datasetId
+          in: body
+          description: dataset id
+          schema:
+            $ref: '#/definitions/DatasetId'
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteDatasetId
+      description: delete DatasetId
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+  
+  /datasets/{id}/experts:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getExperts
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/ExpertList'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Dataset
+      operationId: updateExpert
+      description: update Domain Expert
+      parameters: 
+        - name: expert
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Expert'
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteExpert
+      description: delete Domain Expert
+      parameters:
+        - name: name
+          in: query
+          description: expert
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+     
+  /datasets/{id}/sql:
+    parameters:
+    - name: id
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getSqlStmt
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/SqlStmtList'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/recall:
+    parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Recall'        
+    put:    
+      tags:
+        - Dataset
+      operationId: upsertRecall
+      description: update recall
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /datasets/{id}/documents:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: getFileList
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/FileList'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - Dataset
+      operationId: uploadDoc
+      description: upload file
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          required: false
+          description: The file to upload
+        - in: formData
+          name: fid
+          type: string
+          required: false
+          description: file id
+        - in: formData
+          name: desc
+          type: string
+          required: true
+          description: description
+      responses:
+        200:
+          description: upload Success
+          schema:
+            $ref: "#/definitions/FileData"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/documents/{fid}:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    - name: fid
+      in: path
+      description: file id
+      type: string
+      required: true
+    get:
+      consumes: []
+      produces: [application/vnd.ms-excel]
+      tags:
+        - Dataset
+      operationId: downloadFile
+      description: download file
+      responses:
+        200:
+          description: Success
+          schema:
+            type: file
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset
+      operationId: deleteFile
+      description: delete file
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /datasets/{id}/auth/:
+    parameters:
+    - name: id
+      in: path
+      description: table id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags:
+        - Dataset
+      operationId: queryAuthMapping
+      description: queryAuthMapping
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/AuthMapping'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+        
+  /datasets/{id}/auth/dim/{dim}:
+    parameters:
+      - name: id
+        in: path
+        description: table id
+        type: string
+        required: true
+      - name: dim
+        in: path
+        description: dimension
+        type: string
+        enum: [bg,country,territory,branch,region,product_line,org,others1,others2]
+        required: true
+    get:
+      consumes: []
+      tags:
+        - Dataset
+      operationId: getAuthMapping
+      description: getAuthMapping
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/MappingDetail'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - Dataset
+      operationId: updateAuthMapping
+      description: updateAuthMapping
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/MappingDetail'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /datasets/user/auth:
+    post:
+      tags:
+        - Dataset
+      operationId: queryUserAuth
+      description: queryUserAuth
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserAuthQuery'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/UserAuthMap'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /glossarys:
+    get:
+      consumes: []
+      tags:
+        - Glossary
+      operationId: getGlossary
+      description: find glossary
+      parameters:
+        - name: key
+          in: query
+          description: key
+          type: string
+          required: false
+        - name: offset
+          in: query
+          description: offset
+          type: integer
+          format: int64
+          required: false
+        - name: limit
+          in: query
+          description: key
+          type: integer
+          format: int32
+          required: false
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/GlossaryList'
+      security:
+        - apiKey: []
+    put:
+      tags: 
+        - Glossary
+      operationId: upsertGlossary
+      description: upsert glossary
+      parameters: 
+        - name: glossary
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Glossary"
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/Glossary'
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Glossary
+      operationId: deleteGlossary
+      description: delete glossary
+      parameters: 
+        - name: id
+          in: query
+          description: glossary id
+          type: string
+          required: true
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /stats/hits:
+    post:
+      tags:
+        - Statistic
+      operationId: recordHits
+      description: "insert user's hits behavior, _id is uuid"
+      parameters: 
+        - name: hits
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Hits'
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /collection/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Dataset Collect
+      operationId: getCollections
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/CollectionList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+ 
+  /collection/findMyAll:
+    get:
+      consumes: []
+      tags: 
+        - Dataset Collect
+      operationId: getMyCollections
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/CollectionList"
+        default:
+          description: Error
+      security:
+        - apiKey: []    
+        
+  /collection/like/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+      - name: albumId
+        in: query
+        description: "album id"
+        type: string
+        required: false
+    post:
+      consumes: []
+      tags:
+        - Dataset Collect
+      operationId: like
+      description: "if albumId is null, put object into unctg(uncategory) album. If not exist, create one.(owner.unctg)"
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Dataset Collect
+      operationId: dislike
+      description: "remove object from album and collection"
+      responses:
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /collection/move:
+    put:
+      tags:
+        - Dataset Collect
+      operationId: moveCollection
+      description: "move collections to new album_id, album.md_date need to be updated."
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/moveCollection'
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /album:
+    get:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: queryAlbum
+      parameters:
+        - name: owner
+          in: query
+          description: album owner
+          type: string
+          required: false
+        - name: q
+          in: query
+          description: "query 'name', 'desc' field"
+          type: string
+          required: false
+        - name: type
+          in: query
+          description: "query combo"
+          type: string
+          enum: [Shared, Follow, Shared_OR_follow]
+          required: false
+        - name: sort
+          in: query
+          type: string
+          enum: [name, date, count, follower, popularity]
+          required: false
+        - name: order
+          in: query
+          type: string
+          enum: [asc, desc]
+        - name: offset
+          in: query
+          description: offset
+          type: integer
+          format: int64
+          required: false
+        - name: limit
+          in: query
+          description: key
+          type: integer
+          format: int32
+          required: false
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/AlbumList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /album/findMyAll:
+    get:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: queryMyAllAlbum
+      parameters:
+        - name: q
+          in: query
+          description: "query 'name', 'desc' field"
+          type: string
+          required: false
+        - name: sort
+          in: query
+          type: string
+          enum: [name, date, count, follower, popularity]
+          required: false
+        - name: order
+          in: query
+          type: string
+          enum: [asc, desc]
+          required: false
+        - name: offset
+          in: query
+          description: offset
+          type: integer
+          format: int64
+          required: false
+        - name: limit
+          in: query
+          description: key
+          type: integer
+          format: int32
+          required: false
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/AlbumList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /album/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: "album uuid"
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: getAlbum
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Album"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      consumes: []
+      tags:
+        - Personal Album
+      operationId: updateAlbum
+      description: "update user's album, _id is uuid"
+      parameters:
+        - name: name
+          in: query
+          description: "album name"
+          type: string
+          required: false
+        - name: desc
+          in: query
+          description: "album desc"
+          type: string
+          required: false
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: deleteAlbum
+      description: "delete album"
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /album/create:
+    parameters:
+      - name: name
+        in: query
+        description: "album name"
+        type: string
+        required: true
+      - name: desc
+        in: query
+        description: "album desc"
+        type: string
+        required: false
+    post:
+      consumes: []
+      tags:
+        - Personal Album
+      operationId: createAlbum
+      description: "create user's album"
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Album"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /album/{id}/tags/{name}:
+    parameters:
+      - name: id
+        in: path
+        description: "album id"
+        type: string
+        required: true
+      - name: name
+        in: path
+        description: "tag name"
+        type: string
+        required: true
+    post:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: tagAlbum
+      responses:
+        "200":
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: deleteAlbumTag
+      description: delete album tag
+      responses:
+        "200":
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    
+  /album/suggest/{oid}:
+    parameters:
+      - name: oid
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: getSuggestList
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuggestList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+  
+  /album/{id}/review/approve:
+    parameters:
+      - name: id
+        in: path
+        description: "album id"
+        type: string
+        required: true
+      - name: by_user
+        in: query
+        description: "shared by username"
+        type: string
+        required: true
+    post:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: approveReview
+      description: "approve review"
+      responses:
+        "200":
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /album/{id}/review/reject:
+    parameters:
+      - name: id
+        in: path
+        description: "album id"
+        type: string
+        required: true
+      - name: by_user
+        in: query
+        description: "shared by username"
+        type: string
+        required: true
+    post:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: rejectReview
+      description: "reject review"
+      responses:
+        "200":
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /album/{id}/follow:
+    parameters:
+      - name: id
+        in: path
+        description: "album id"
+        type: string
+        required: true
+    post:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: followAlbum
+      description: "get user by sso"
+      responses:
+        "200":
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Personal Album
+      operationId: unfollowAlbum
+      description: not follow anymore
+      responses:
+        "200":
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /album/{id}/share:
+    parameters:
+      - name: id
+        in: path
+        description: "album id"
+        type: string
+        required: true
+    post:
+      tags:
+        - Personal Album
+      operationId: shareAlbum
+      description: "share existed album to someone, add to review parts. record share history."
+      parameters: 
+        - name: share
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ShareHistory'
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /user:
+    get:
+      consumes: []
+      tags: 
+        - UserProfile
+      operationId: getUserProfile
+      description: "if not exits, create one."
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/UserProfile"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - UserProfile
+      operationId: updateUserProfile
+      description: "update user's profile, _id is user account"
+      parameters:
+        - name: userProfile
+          in: body
+          description: "SimpleUserProfile"
+          schema:
+            $ref: "#/definitions/SimpleUser"
+          required: true
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []  
+
+  /user/{user}/follow:
+    parameters:
+      - name: user
+        in: path
+        description: "user account"
+        type: string
+        required: true
+    post:
+      consumes: []
+      tags:
+        - UserProfile
+      operationId: addFollower
+      description: "add personal fans"
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - UserProfile
+      operationId: removeFollower
+      description: not follow anymore
+      responses:
+        "200":
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /user/find:
+    parameters:
+      - name: q
+        in: query
+        description: "user account"
+        type: string
+        required: false
+      - name: offset
+        in: query
+        description: offset
+        type: integer
+        format: int64
+        required: false
+      - name: limit
+        in: query
+        description: key
+        type: integer
+        format: int32
+        required: false
+      - name: sort
+        in: query
+        type: string
+        enum: [name]
+        required: false
+      - name: order
+        in: query
+        type: string
+        enum: [asc, desc]
+        required: false
+    get:
+      consumes: []
+      tags: 
+        - UserProfile
+      operationId: queryUser
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SimpleUserList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/query:
+    post:
+      parameters:
+        - name: query
+          in: body
+          description: "query object"
+          schema:
+            $ref: "#/definitions/GoldenQuery"
+          required: true
+      tags: 
+        - Data Market
+      operationId: execQuery
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ResultSet"
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /golden/dataset/query/rules:
+    parameters:
+      - name: q
+        in: query
+        description: "query keyword"
+        type: string
+        required: true
+      - name: sc
+        in: query
+        description: "special case"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryByRule
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ResultSet"
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /golden/dataset/export:
+    post:
+      tags: 
+        - Data Market
+      parameters:
+        - name: data
+          in: body
+          description: "export detail"
+          schema:
+            $ref: "#/definitions/ExportRequest"
+          required: true
+      operationId: export
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/report/create:
+    post:
+      tags: 
+        - Data Market
+      parameters:
+        - name: data
+          in: body
+          description: "create report and send mail"
+          schema:
+            $ref: "#/definitions/ReportRequest"
+          required: true
+      operationId: createReport
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/favorite:
+    parameters:
+      - name: id
+        in: path
+        description: "dataset id"
+        type: string
+        required: true
+    post:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: favoritekDataset
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: deleteFavoritekDataset
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+    
+
+  /golden/dataset/user/favorites/mapping:
+    post:
+      tags:
+        - Data Market
+      operationId: queryUserFavoriate
+      description: queryUserFavoriate
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserFavoriteQuery'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/UserFavoriteMap'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/dataset/user/favorites:
+    parameters:
+      - name: q
+        in: query
+        description: "any string"
+        type: string
+        required: false
+      - name: tags
+        in: query
+        type: array
+        items:
+          type: string
+        required: false
+      - name: roles
+        in: query
+        type: array
+        items:
+          type: string
+        required: false
+      - name: offset
+        in: query
+        description: offset
+        type: integer
+        format: int64
+        default: 0
+        required: false
+      - name: limit
+        in: query
+        description: limit
+        type: integer
+        format: int32
+        default: 100
+        required: false
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryMyFavoriteDataset
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SearchResultSet"
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/priviledge/data/view:
+    parameters:
+      - name: q
+        in: query
+        description: "any string"
+        type: string
+        required: false
+      - name: tags
+        in: query
+        type: array
+        items:
+          type: string
+        required: false
+      - name: roles
+        in: query
+        type: array
+        items:
+          type: string
+        required: false
+      - name: offset
+        in: query
+        description: offset
+        type: integer
+        format: int64
+        default: 0
+        required: false
+      - name: limit
+        in: query
+        description: limit
+        type: integer
+        format: int32
+        default: 100
+        required: false
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryUserPriviledgeDataView
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SearchResultSet"
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/preview:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: preview
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ResultSet"
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+   
+  /golden/dataset/{id}/ready:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: isReady
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /golden/dataset/recall:
+    parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Recall'            
+    post:
+      tags: 
+        - Data Market
+      operationId: recall
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/export/{hid}:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+      - name: hid
+        in: path
+        description: "History Id"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: rexport
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    delete:
+      consumes: []  
+      tags: 
+        - Data Market
+      operationId: deleteExport
+      description: delete export
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/schedule/trigger:
+    parameters:
+      - name: data
+        in: body
+        schema:
+          $ref: '#/definitions/ScheduleTrigger'
+        required: true
+    post:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: tiggerScheduleExport
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/schedule/view:
+    parameters:
+      - name: q
+        in: query
+        description: "any string"
+        type: string
+        required: false
+      - name: sort
+        in: query
+        type: string
+        enum: [name, date]
+        required: false
+      - name: order
+        in: query
+        type: string
+        enum: [asc, desc]
+        required: false
+      - name: offset
+        in: query
+        description: offset
+        type: integer
+        format: int64
+        default: 0
+        required: false
+      - name: limit
+        in: query
+        description: limit
+        type: integer
+        format: int32
+        default: 100
+        required: false
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryScheduleExportView
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ScheduleExportList"
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/schedule/create:
+    post:
+      tags:
+        - Data Market
+      operationId: createScheduleExport
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ScheduleExport'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/ScheduleExport'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/dataset/schedule/{sid}:
+    parameters:
+      - name: sid
+        in: path
+        description: schedule uuid
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: getScheduleExport
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ScheduleExport"
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - Data Market
+      operationId: updateScheduleExport
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ScheduleExport'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/ScheduleExport'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    delete:
+      consumes: []  
+      tags: 
+        - Data Market
+      operationId: deleteScheduleExport
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: getGoldenDataset
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GoldenDataset"
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /golden/dataset:
+    parameters:
+      - name: q
+        in: query
+        description: "target: _id"
+        type: string
+        required: false
+      - name: offset
+        in: query
+        description: offset
+        type: integer
+        format: int64
+        default: 0
+        required: false
+      - name: limit
+        in: query
+        description: limit
+        type: integer
+        format: int32
+        default: 100
+        required: false
+      - name: sort
+        in: query
+        type: string
+        enum: [name]
+        default: name
+        required: false
+      - name: order
+        in: query
+        type: string
+        enum: [asc, desc]
+        default: desc
+        required: false
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryGoldenDataset
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GoldenDatasetList"
+        '400':
+          description: Bad request
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/column/name:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    put:
+      tags:
+        - Data Market
+      operationId: updateColumnName
+      description: "updateColumnName"
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ColumnName'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+     
+  /golden/dataset/{id}/column/values:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+      - name: name
+        in: query
+        description: "Column Name"
+        type: string
+        required: true
+      - name: q
+        in: query
+        description: query
+        type: string
+        required: false
+      - name: offset
+        in: query
+        description: offset
+        type: integer
+        default: 0
+        format: int64
+        required: false
+      - name: limit
+        in: query
+        description: key
+        type: integer
+        default: 100
+        format: int32
+        required: false
+    get:
+      consumes: []
+      tags:
+        - Data Market
+      operationId: getColumnValue
+      description: "getColumnValue"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/SimpleResultSet'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+        
+  /golden/dataset/{id}/column/statistic:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+      - name: name
+        in: query
+        description: "Column Name"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags:
+        - Data Market
+      operationId: getColumnStatistic
+      description: "getColumnStatistic"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/ColumnStatistic'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+      
+  /golden/dataset/{id}/column/category:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    get:
+      consumes: []
+      tags:
+        - Data Market
+      operationId: getCategories
+      description: "getCategories"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/ColumnCategoryList'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    post:
+      tags:
+        - Data Market
+      operationId: createColumnCategory
+      description: "createColumnCategory"
+      parameters: 
+        - name: name
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/BaseColumnCategory'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - Data Market
+      operationId: editColumnCategoryName
+      description: "editColumnCategory"
+      parameters: 
+        - name: name
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/EditColumnCategory'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/column/category/delete:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+      - name: ctg
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/BaseColumnCategory'
+    put:
+      consumes: []  
+      tags: 
+        - Data Market
+      operationId: deleteColumnCategory
+      description: delete Column Category
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/column/category/move:
+    parameters:
+      - name: id
+        in: path
+        description: "(project.table)"
+        type: string
+        required: true
+    put:
+      tags:
+        - Data Market
+      operationId: moveColumnCategory
+      description: "move Columns to new Column Category"
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/MoveColumnCategory'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/dataset/news:
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryNews
+      parameters:
+        - name: q
+          in: query
+          description: "query 'title', 'desc' content"
+          type: string
+          required: false
+        - name: sort
+          in: query
+          type: string
+          enum: [title, date]
+          required: false
+        - name: order
+          in: query
+          type: string
+          enum: [asc, desc]
+          required: false
+        - name: offset
+          in: query
+          description: offset
+          type: integer
+          format: int64
+          default: 0
+          required: false
+        - name: limit
+          in: query
+          description: key
+          type: integer
+          format: int32
+          default: 100
+          required: false
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/NewsList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    post:
+      tags:
+        - Data Market
+      operationId: createNews
+      description: "createNews"
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/News'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []    
+        
+  /golden/dataset/news/{id}:
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: getNews
+      parameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/News"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - Data Market
+      operationId: updateNews
+      description: "updateNews"
+      parameters: 
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/News'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    delete:
+      consumes: []
+      tags:
+        - Data Market
+      operationId: deleteNews
+      description: "deleteNews"
+      parameters: 
+        - name: id
+          in: path
+          type: string
+          required: true
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/template:
+    parameters:
+    - name: id
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: getTemplateList
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/TemplateList'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - Data Market
+      operationId: uploadTemplate
+      description: upload Golden Template
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          required: false
+          description: The file to upload
+      responses:
+        200:
+          description: upload Success
+          schema:
+            $ref: "#/definitions/TemplateInfo"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/datasets/{id}/template/{tid}:
+    parameters:
+    - name: id
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    - name: tid
+      in: path
+      description: template id
+      type: string
+      required: true
+    get:
+      consumes: []
+      produces: []
+      tags:
+        - Data Market
+      operationId: downloadTemplate
+      description: download file
+      responses:
+        200:
+          description: Success
+          schema:
+            type: file
+      security:
+        - apiKey: []
+    delete:
+      consumes: []  
+      tags: 
+        - Data Market
+      operationId: deleteTemplate
+      description: delete file
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/dataset/{id}/template/{tid}/info:
+    parameters:
+    - name: id
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    - name: tid
+      in: path
+      description: "Template ID"
+      type: string
+      required: true
+    put:
+      tags:
+        - Data Market
+      operationId: updateTemplateInfo
+      description: "updateTemplateInfo"
+      parameters: 
+        - name: info
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TemplateInfo'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/datasets/{id}/dashboard:
+    parameters:
+    - name: id
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    get:
+      consumes: []
+      produces: []
+      tags:
+        - Data Market
+      operationId: getDashboard
+      description: getDashboard
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/Dashboard"
+      security:
+        - apiKey: []
+    post:
+      tags:
+        - Data Market
+      operationId: createDashboard
+      description: "createDashboard"
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Dashboard'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    put:
+      tags:
+        - Data Market
+      operationId: updateDashboard
+      description: "updateDashboard"
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Dashboard'
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/{oid}/history:
+    parameters:
+    - name: oid
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    - name: type
+      in: query
+      type: string
+      enum: [my_follow, my_own]
+      required: false
+    - name: offset
+      in: query
+      description: offset
+      type: integer
+      default: 0
+      format: int64
+      required: false
+    - name: limit
+      in: query
+      description: limit
+      type: integer
+      default: 100
+      format: int32
+      required: false
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryHistory
+      description: "find Golden History of single dataset"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GoldenHistoryList"
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/{oid}/history/{hid}:
+    parameters:
+    - name: oid
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    - name: hid
+      in: path
+      description: "history id"
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: getHistory
+      description: "find Golden History of single dataset"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GoldenHistory"
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/{oid}/history/{hid}/name:
+    parameters:
+    - name: oid
+      in: path
+      description: "(project.table)"
+      type: string
+      required: true
+    - name: hid
+      in: path
+      description: "history id"
+      type: string
+      required: true
+    - name: name
+      in: query
+      type: string
+      required: true
+    put:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: updateHistoryName
+      description: "update Golden History Name"
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+
+  /golden/history/{id}/follow:
+    parameters:
+      - name: id
+        in: path
+        description: "history uuid"
+        type: string
+        required: true
+    post:
+      consumes: []
+      tags:
+        - Data Market
+      operationId: followHistory
+      description: "add Golden History to personal userdata with {user}"
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+        
+  /golden/history/bookmark/find:
+    parameters:
+      - name: query
+        in: body
+        description: "query object"
+        schema:
+          $ref: "#/definitions/BookmarkQuery"
+        required: true
+    post:
+      tags: 
+        - Data Market
+      operationId: queryBookmark
+      description: "queryBookmark"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GoldenHistoryList"
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+        
+  /golden/history/bookmark:
+    put:
+      consumes: []
+      tags:
+        - Data Market
+      parameters: 
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Bookmark'
+      operationId: upsertBookmark
+      description: "upsertBookmark"
+      responses:
+        "200":
+          description: Success
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      security:
+        - apiKey: []
+    delete:
+      consumes: []  
+      tags: 
+        - Data Market
+      parameters: 
+        - name: id
+          in: query
+          type: string
+          required: true
+        - name: historyId
+          in: query
+          type: string
+          required: true
+      operationId: deleteBookmark
+      description: delete file
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /golden/tree:
+    post:
+      consumes: []
+      tags:
+        - Data Market
+      parameters: 
+        - name: hits
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TreeRequest'
+      operationId: getTreenodeFellow
+      description: getTreenodeFellow
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/TreeNodeList'
+        default:
+          description: Error
+      security:
+        - apiKey: []
+        
+  /filemgr:
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: queryFileManager
+      parameters:
+        - name: user
+          in: query
+          description: user
+          type: string
+          required: false
+        - name: status
+          in: query
+          description: "status array"
+          type: array
+          items: 
+            type: string
+            enum: [processing,error,exist,expire]
+          required: false
+        - name: offset
+          in: query
+          description: offset
+          type: integer
+          format: int64
+          default: 0
+          required: false
+        - name: limit
+          in: query
+          description: limit
+          type: integer
+          format: int32
+          default: 100
+          required: false
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/FileManagerList"
+        default:
+          description: Error
+      security:
+        - apiKey: []
+
+  /filemgr/history/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: FileManager id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: getFileManager
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/FileManager"
+        "404":
+          description: NotFound
+      security:
+        - apiKey: []
+
+  /filemgr/history/{id}/download:
+    parameters:
+    - name: id
+      in: path
+      description: historyid id
+      type: string
+      required: true
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: getFile
+      description: download file
+      responses:
+        200:
+          description: Success
+          schema:
+            type: file
+        default:
+          description: NotFound
+      security:
+        - apiKey: []
+
+  /filemgr/expire:
+    get:
+      consumes: []
+      tags: 
+        - Data Market
+      operationId: removeFiles
+      description: FileManager remove expire files
+      responses:
+        200:
+          description: Success
+        default:
+          description: NotFound
+      security:
+        - apiKey: []
+
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  Response:
+    properties:
+      message:
+        type: string
+  Version:
+    required:
+      - ver
+    properties:
+      ver:
+        type: string
+        maxLength: 15
+        minLength: 3
+      docLink:
+        type: string
+      tagLink:
+        type: string
+      searchLink:
+        type: string
+      msg:
+        type: string
+      datetime:
+        type: string
+        format: date-time
+  LoginReq:
+    required:
+      - ssokey
+    properties:
+      ssokey:
+        type: string
+      ssofrom:
+        type: string
+        enum: [db,adfs_token,adfs_ws]
+  LoginAsReq:
+    required:
+      - domain
+      - user_id
+    properties:
+      domain:
+        type: string
+      user_id:
+        type: string
+      expirationtime:
+        default: 21600000
+        type: integer
+        format: int64
+  LoginToReq:
+    required:
+      - domain
+      - user_id
+      - pre_token
+    properties:
+      domain:
+        type: string
+      user_id:
+        type: string
+      pre_token:
+        type: string
+  LoginRsp:
+    required:
+      - token
+      - legacy_token
+    properties:
+      token:
+        type: string
+      legacy_token:
+        type: string
+      me:
+        $ref: "#/definitions/User"
+  WhoIsReq:
+    required:
+      - token
+    properties:
+      token:
+        type: string
+
+# if change 'User' Model please remember to update all api project!!!: one-gateway, one-api, golden-api, golden-export-api
+  User: 
+    properties:
+      work_id:
+        type: string
+      user_id:
+        type: string
+      domain:
+        type: string
+      name:
+        type: string
+      puppet_master:
+        $ref: "#/definitions/User"      
+      auth:
+        $ref: "#/definitions/Auth"
+      data_auth:
+        type: boolean  
+        default: false
+      config:
+        $ref: "#/definitions/Config"
+      is_super:
+        type: boolean  
+        default: false
+      is_system:
+        type: boolean  
+        default: false
+      auth_role:
+        type: array
+        items:
+          type: string
+#          enum: [pm,sales]
+  Auth:
+    properties:
+      bg:        
+        type: array
+        items: 
+          type: string
+      territory:        
+        type: array
+        items: 
+          type: string
+      region:
+        type: array
+        items: 
+          type: string
+      branch:
+        type: array
+        items: 
+          type: string
+      country:
+        type: array
+        items: 
+          type: string
+      product_line:
+        type: array
+        items: 
+          type: string
+      org:
+        type: array
+        items: 
+          type: string
+      others1:
+        type: array
+        items: 
+          type: string
+      others2:
+        type: array
+        items: 
+          type: string          
+  Config:
+    properties:
+      preview_rowCount:
+        default: 1000
+        type: integer
+        format: int64
+      export_rowCount:
+        default: 200000
+        type: integer
+        format: int64
+      expiration_day:
+        default: 1
+        type: integer
+        format: int64
+
+  AuthType:
+    properties:
+      auth_type:
+        type: string
+        enum: [bg,country,territory,branch,region,product_line,org,others1,others2,role]
+
+  AuthMapping:
+    properties:
+      dataset:
+        type: string
+      mapping:
+        $ref: "#/definitions/Auth"
+
+  Search:
+    properties:
+      keywords:
+        type: string
+      sort:
+        description: The sort parameter arranges search results in either ascending (asc) or descending (desc) order. The parameter can be used with either numerical or alphabetical content. The directions can be entered in either all lowercase or all uppercase letters (i.e., both asc or ASC).
+        type: string
+      offset:
+        description: Specifies an offset into a query’s result set and instructs search result to begin displaying results from this offset.
+        type: integer
+        example: 0
+        minimum: 0
+      limit:
+        description: You can use the limit parameter to paginate results from a query. The parameter specifies the maximum number of documents from the complete result set.
+        type: integer
+        minimum: 1
+        default: 1
+      allfields:
+        description: Return all fields from solr
+        type: boolean
+        default: false
+      filter:
+          $ref: '#/definitions/SearchFilter'
+
+  SearchFilter:
+    properties:
+      project_name:
+          description: MaxCompute project name.
+          type: string
+      table_size:
+          description: Storage size occupied by table data, unit is Byte.
+          type: string
+      table_last_meta_modified_time:
+          description: Last modified date of table schema.
+          type: string
+      table_modified_time:
+          description: Last modified date of table.
+          type: string
+      table_creation_time:
+          description: Created time of table.
+          type: string
+
+  SearchResultSet:
+    properties:
+      format:
+        type: string
+        enum: [master_detail,flat,solr]
+      master_detail.dataset:
+        properties:
+          master:
+            type: array
+            items:
+              type: object
+          detail:
+            type: array
+            items:
+              type: object
+      flat.dataset:
+        type: array
+        items:
+          type: object
+      solr.dataset:
+        type: array
+        items:          
+          $ref: "#/definitions/SolrDataset"
+      response_time:
+        default: 0
+        description: response_time
+        type: number
+        format: float
+      total_count:
+        default: 0
+        description: total_count
+        type: integer
+        format: int64
+     
+  SolrDataset:
+    properties:
+      _id:
+        type: string
+      table_desc:
+        type: string
+      table_name:
+        type: object
+        properties:
+          en_us:
+            type: string
+          zh_tw:
+            type: string
+          id:
+            type: string
+      dataset_id:
+        type: string
+      important:
+        type: number
+        format: float
+      domain_expert:
+        type: array
+        items:
+          type: string
+      data_maintainer:
+        type: array
+        items:
+          type: string
+      data_admin:
+        type: array
+        items:
+          type: string          
+      search_tag:
+        type: array
+        items:
+          type: string
+      table_extra:
+        type: array
+        items:
+          type: string
+      main_columns:
+        type: array
+        items:
+          type: string
+      popularity:
+        type: string
+      row_count:
+        type: integer
+      last_updated:
+        type: string
+        format: date-time
+      gp_sync_date :
+        type: string
+        format: date-time
+      dataworks_detail_url:
+        type: string
+      highlighting:
+        type: string
+      project_name:
+        type: string
+
+
+
+  Dataset:
+    required:
+      - name
+      - id
+      - dataset_id
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      project:
+        type: string
+      desc:
+        type: string
+      mdt:
+        type: string
+        format: date-time
+      aliMdt:
+        type: string
+        format: date-time
+      #important with Interger input
+      important:
+        type: string
+      recall:
+        type: boolean  
+      popularity:
+        type: string
+      rowCount:
+        type: integer
+        format: int64
+      #date with date input
+      startDate:
+        type: string
+      endDate:
+        type: string
+      maintainer:
+        type: array
+        items: 
+          type: string
+      dataAdmin:
+        type: array
+        items: 
+          type: string          
+      experts:
+        type: array
+        items: 
+          type: string
+      tags:
+        type: array
+        items: 
+          type: string
+      roles:
+        type: array
+        items: 
+          type: string
+      maincols:
+        type: array
+        items: 
+          type: string
+      docset:
+        type: array
+        items: 
+          type: string
+      colExtra:
+        $ref: "#/definitions/ColumnExtraMap"
+      colDesc:
+        $ref: "#/definitions/DescMap"
+      partColDesc:
+        $ref: "#/definitions/DescMap"
+      colType:
+        $ref: "#/definitions/ColTypeMap"
+      extra:
+        $ref: "#/definitions/DescMap"
+      tableName:
+        $ref: "#/definitions/TableNameMap"
+      datamarks:
+        type: array
+        items: 
+          type: string
+      dataset_id:
+        type: string
+        
+  DatasetList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/Dataset"
+      hasNext:
+        type: boolean
+          
+  TraceType:
+    type: string
+    enum: [Important,Startdate,Enddate,Maintainer,DataAdmin,Desc,ColDesc,ColPartition,ColExtra,Extra,DatasetId,Recall,TableName]
+  Trace:
+    properties:
+      value:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+  TraceList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/Trace"
+          
+  Tag:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+  TagList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/Tag"
+          
+  Role:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+  RoleList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/Role"        
+          
+  Maintainer:
+    allOf:
+      - $ref: "#/definitions/Tag"
+  MaintainerList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/Maintainer"
+
+  DataAdmin:
+    allOf:
+      - $ref: "#/definitions/Tag"
+  DataAdminList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/DataAdmin"       
+          
+  SqlStmtList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          type: string
+          
+  Expert:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+  ExpertList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/Expert"
+          
+  Extra:
+    required:
+      - key
+      - value
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+      mdt:
+        type: string
+        format: date-time
+      mid:
+        type: string
+  ExtraList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Extra'
+          
+  Desc:
+    required:
+      - col
+      - value
+    properties:
+      col:
+        type: string
+      value:
+        type: string
+      seq:
+        type: integer
+        format: int32
+      mdt:
+        type: string
+        format: date-time
+      mid:
+        type: string        
+  DescList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Desc'
+          
+  Partition:
+    required:
+      - col
+      - value
+    properties:
+      col:
+        type: string
+      value:
+        type: string
+      mdt:
+        type: string
+        format: date-time
+      mid:
+        type: string        
+  PartList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Partition'
+          
+  MainCol:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+  MainColList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/MainCol"
+          
+  DataMask:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+  DataMaskList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/DataMask"   
+          
+  TableName:
+    required:
+      - type
+      - name
+    properties:
+      type:
+        type: string
+        enum: [zh_tw, en_us]
+      name:
+        type: string
+          
+  Detail:
+    required:
+      - head
+      - col
+      - value
+    properties:
+      head:
+        type: string
+      col:
+        type: string
+      value:
+        type: string
+      mdt:
+        type: string
+        format: date-time
+      mid:
+        type: string          
+  DetailList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Detail'
+        
+  ColTypeMap:
+    additionalProperties:
+      type: string
+  DescMap:
+    additionalProperties:
+      type: string
+  TableNameMap:
+    additionalProperties:
+      type: string
+  ColumnExtraMap:
+      additionalProperties:
+        $ref: '#/definitions/DescMap'
+        
+  FieldType:
+    type: string
+    enum: [Important,Startdate,Enddate,Desc,Recall]
+    
+  FieldParam:
+    required:
+      - type
+    properties:
+      type:
+        $ref: '#/definitions/FieldType'
+      value:
+        type: string
+
+  FileData:
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      filename:
+        type: string
+      link:
+        type: string
+      desc:
+        type: string
+      mdt:
+        type: string
+        format: date-time
+      mid:
+        type: string
+  FileList:
+    required:
+      - list
+      - size
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/FileData'
+      size:
+        type: integer
+        format: int32
+        
+  Glossary:
+    required:
+      - key
+      - desc
+    properties:
+      id:
+        type: string
+      key:
+        type: string
+      desc:
+        type: string
+  GlossaryList:
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Glossary'
+      hasNext:
+        type: boolean
+        
+  Hits:
+    required:
+      - action
+      - type
+    properties:
+      user:
+        type: string
+      ip:
+        type: string
+      locale:
+        type: string
+      type:
+        type: string
+        enum: [dataset, func]
+      system:
+        type: string
+        enum: [asus_search, data_market]        
+      action:
+        type: string
+        description: "action id"
+      val1:
+        type: string
+        description: "(project.table) or user's input"  
+      val2:
+        type: string
+        description: "user's input"
+      val3:
+        type: string
+        description: "user's input"    
+
+  Album:
+    required:
+      - name
+      - owner
+      - md_date
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      desc:
+        type: string
+      owner:
+        type: string
+      owner_name:
+        type: string
+      popularity:
+        type: string
+      tags:
+        type: array
+        items:
+          $ref: "#/definitions/Tag"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/AlbumDataSet"
+      shared:
+        type: array
+        items:
+           $ref: "#/definitions/SharedItem"
+      follow:
+        type: array
+        items:
+          $ref: "#/definitions/FollowItem"
+      like_by_me:
+        type: boolean
+      shared_to_me:
+        $ref: "#/definitions/SharedItem"
+      follow_by_me:
+        $ref: "#/definitions/FollowItem"
+      del:
+        type: boolean
+      md_date:
+        type: string
+        format: date-time
+  AlbumList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/Album"
+      total_size:
+        type: integer
+        format: int32
+      hasNext:
+        type: boolean
+  AlbumDataSet:
+    properties:
+      url:
+        type: string
+      project:
+        type: string
+      name:
+        type: string
+        description: "(project.table)"
+      desc:
+        type: string
+      popularity:
+        type: string
+
+  SuggestItem:
+    properties:
+      id:
+        type: string
+        description: "(project.table)"
+      prject_name:
+        type: string
+      table_name:
+        type: string
+      table_desc:
+        type: string
+      album_name:
+        type: array
+        items:
+          type: string
+    
+  SuggestList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/SuggestItem"
+      hasNext:
+        type: boolean
+
+  SharedItem:
+    properties:
+      who:
+        type: string
+      by_user:
+        type: string
+      by_user_name:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+  FollowItem:
+    properties:
+      who:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+        
+  ShareHistory:
+    required:
+      - id
+      - to_user
+      - md_date
+    properties:
+      id:
+        type: string
+        description: "album id"
+      to_user:
+        type: array
+        items:
+          type: string
+      md_date:
+        type: string
+        format: date-time
+        
+  ReviewItem:
+    required:
+      - album_id
+      - by_user
+      - md_date
+    properties:
+      album_id:
+        type: string
+        description: "album._id"
+      album_name:
+        type: string
+      album_desc:
+        type: string
+      album_owner:
+        type: string
+      album_items:
+        type: string
+        description: "items count"
+      album_follower:
+        type: string
+        description: "follower count"
+      album_shared:
+        type: string
+        description: "shared count"
+      by_user:
+        type: string
+        description: "who sugguest these items"
+      md_date:
+        type: string
+        format: date-time
+
+  UserProfile:
+    required:
+      - user
+    properties:
+      user: 
+        type: string
+        description: "user account"
+      name: 
+        type: string
+        description: "full user account"
+      department:
+        type: string
+      share:
+        properties:
+          list:
+            type: array
+            items:
+              $ref: "#/definitions/ShareHistory"
+      album_review:
+        type: array
+        items:
+          $ref: "#/definitions/ReviewItem"
+      fans:
+        type: array
+        items:
+          type: string
+          description: "user account"
+      follows:
+        type: array
+        items:
+          type: string
+          description: "user account"
+      ali:
+        $ref: "#/definitions/AliUser"
+      md_date:
+        type: string
+        format: date-time
+          
+  SimpleUser:
+    properties:
+      user:
+        type: string
+      name:
+        type: string
+      department:
+        type: string
+      ali:
+        $ref: "#/definitions/AliUser"
+      albums:
+        type: integer
+        format: int32
+      fans:
+        type: array
+        items:
+          type: string
+          description: "user account"
+      follows:
+        type: array
+        items:
+          type: string
+          description: "user account"
+      md_date:
+        type: string
+        format: date-time
+        
+  AliUser:
+    properties:
+      id:
+        type: string
+      user:
+        type: string
+        
+  SimpleUserList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/SimpleUser"
+      total_size:
+        type: integer
+        format: int32
+      hasNext:
+        type: boolean
+        
+  Collection:
+    properties:
+      id:
+        type: string
+      album_id:
+        type: string
+      album_name:
+        type: string
+      album_desc:
+        type: string
+      album_owner:
+        type: string
+      album_owner_name:
+        type: string
+      source:
+        type: string
+        enum: [like, shared, follow, shared_and_follow]
+      md_date:
+        type: string
+        format: date-time
+        
+  CollectionList:
+    properties:
+      list:
+        type: array
+        items: 
+          $ref: "#/definitions/Collection"
+
+  moveCollection:
+    properties:
+      collections:
+        type: array
+        items:
+          type: string
+          description: "(project.table)"
+      org_album_id:
+              type: string          
+      new_album_id:
+        type: string
+        
+  ColumnName:
+    properties:
+      id:
+        type: string
+      zh_tw:
+        type: string
+      en_us:
+        type: string
+  ColumnNameList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/ColumnInfo"
+  ColumnInfo:
+    allOf:
+      - $ref: "#/definitions/ColumnName"
+      - type: object
+        properties:
+          main:
+            type: boolean
+          type:
+            type: string
+          desc:
+            type: string
+
+            
+  ColumnCategoryList:
+    properties:
+      categories:
+        type: array
+        items:
+          $ref: "#/definitions/ColumnCategory"
+                
+  BaseColumnCategory:
+    properties:
+      filter:
+        type: string
+      category:
+        type: string
+          
+  ColumnCategory:
+    allOf:
+      - $ref: "#/definitions/BaseColumnCategory"
+      - type: object
+        properties:
+          columns:
+            type: array
+            items:
+              type: string
+              
+  EditColumnCategory:
+    properties:
+      org_data:
+        $ref: "#/definitions/BaseColumnCategory"        
+      new_data:
+        $ref: "#/definitions/BaseColumnCategory"  
+
+        
+  MoveColumnCategory:
+    properties:
+      columns:
+        type: array
+        items:
+          type: string
+          description: "Column Name"
+      org_data:
+        $ref: "#/definitions/BaseColumnCategory"        
+      new_data:
+        $ref: "#/definitions/BaseColumnCategory"    
+        
+  GoldenDataset:
+    properties:
+      id:
+        type: string
+      region:
+        type: string
+      columnName:
+        $ref: "#/definitions/ColumnNameList"
+      columnCategory:
+        $ref: "#/definitions/ColumnCategoryList"
+      user_auth:
+        type: object
+        properties:
+          privilege:
+            type: boolean
+            default: false
+          config:
+            $ref: "#/definitions/Config"
+ 
+  GoldenDatasetList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/GoldenDataset"
+          
+  GoldenHistory:
+    properties:
+      id:
+        type: string    
+        description: "Query History id"
+      name:
+        type: string    
+        description: "Query History Name"
+      url:
+        type: string    
+        description: "for short link"
+      query:
+        $ref: "#/definitions/GoldenQuery"
+      bookmark_type:
+        type: string
+      user:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+        
+  GoldenHistoryList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/GoldenHistory"
+
+  ResultSet:
+    properties:
+      columns:
+        type: array
+        items:
+          type: object
+          properties:
+            id: 
+              type: string
+            type: 
+              type: string
+      row_count:
+        default: 0
+        type: integer
+        format: int64
+      auth_row_count:
+        default: 0
+        type: integer
+        format: int64
+      sql:
+        type: string
+      ali_sql:
+        type: string
+      where_clause:
+        type: string
+      result:
+        type: array
+        items:
+          type: object
+            
+  SimpleResultSet:
+    properties:
+      data:
+        type: array
+        items:
+          type: string
+
+  GoldenCond:
+    required:
+      - column
+      - type
+      - value
+    properties:
+      column:
+        type: string
+      group:
+        type: string
+      exclude:
+        type: boolean
+        default: false
+      type:
+        type: string
+        enum: [string, number, date, product, function]
+      value:
+        type: array
+        items:
+          type: object
+          properties:
+            op:
+              type: string
+              enum: [in, is, eq, gt, gte, lt, lte, like]
+            data:
+              type: array
+              items:
+                type: string
+      condition:
+        type: array
+        items:
+          $ref: "#/definitions/GoldenCond"
+              
+  GoldenQuery:
+    properties:
+      id:
+        type: string
+        description: "dataset id"
+      columns:
+        type: array
+        items:
+          type: string
+      columns_v2:
+        type: array
+        items:
+          type: object
+          properties:
+            sub_query:
+              type: string
+            alias:
+              type: string
+      condition:
+        type: array
+        items:
+          $ref: "#/definitions/GoldenCond"
+      group_by:
+        type: array
+        items:
+          type: string
+      having:
+        type: array
+        items:
+          type: string
+      order_by:
+        type: array
+        items:
+          type: string
+      offset:
+        default: 0
+        description: offset
+        type: integer
+        format: int64
+      limit:
+        default: 100
+        description: limit
+        type: integer
+        format: int64
+      count_only:
+        type: boolean
+        default: true
+      sql_only:
+        type: boolean
+        default: false
+
+  ExportRequest:
+    properties:
+      query:
+        $ref: "#/definitions/GoldenQuery"
+      template_id:
+        type: string
+      file_name:
+        type: string
+      mail_to:
+        type: array
+        items:
+          type: string
+          
+  ReportRequest:
+    allOf:
+      - $ref: "#/definitions/ExportRequest"
+      - type: object
+        properties:
+          mail_title:
+            type: string
+          mail_sub_title:
+            type: string
+          subject:
+            type: array
+            items:
+              type: string
+          desc:
+            type: array
+            items:
+              type: string
+          mail_cc:
+            type: array
+            items:
+              type: string
+          mail_bcc:
+            type: array
+            items:
+              type: string
+        
+  ColumnRanges:
+    properties:
+      start:
+        type: number
+      end:
+        type: number
+        
+  ColumnStatistic:
+    properties:
+      start:
+        type: string
+      end:
+        type: string
+      mean:
+        type: string
+      median:
+        type: string
+      stddev:
+        type: string
+      stddev_p1:
+        type: string
+      stddev_p2:
+        type: string
+      stddev_p3:
+        type: string
+      stddev_n1:
+        type: string
+      stddev_n2:
+        type: string
+      stddev_n3:
+        type: string
+      dim_sum:
+        type: string
+      dim_value_count:
+        type: string
+      dim_value_percent:
+        type: string
+      dim_dist_count:
+        $ref: "#/definitions/RangeValueList"
+      dim_dist_percent:
+        $ref: "#/definitions/RangeValueList"
+      num_dist_count:
+        $ref: "#/definitions/RangeValueList"
+      num_dist_percent:
+        $ref: "#/definitions/RangeValueList"
+
+  RangeValueList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/RangeValue"
+
+  RangeValue:
+    properties:
+      range:
+        type: string
+      value:
+        type: string
+        
+  TreeNode:
+    properties:
+      data:
+        type: object
+      level:
+        type: string
+      id:
+        type: string
+      index:
+        type: number
+      isLeaf:
+        type: boolean
+      children:
+        $ref: "#/definitions/TreeNodeList"
+      parent:
+        $ref: "#/definitions/TreeNode"
+        
+  TreeNodeList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/TreeNode"
+
+  TreeRequest:
+    properties:
+      level:
+        type: string
+      id:
+        type: string
+      offset:
+        type: integer
+        format: int64
+        default: 0
+      limit:
+        type: integer
+        format: int32
+        default: 100
+      l1:
+        type: boolean
+      l2:
+        type: boolean
+      l3:
+        type: boolean
+      l4:
+        type: boolean
+      l5:
+        type: boolean
+      l6:
+        type: boolean
+    
+  FileManager:
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      historyId:
+        type: string
+      fileName:
+        type: string
+      query:
+        $ref: "#/definitions/GoldenQuery"
+      export_type:
+        type: string
+        enum: ["e", "r"]
+      export_sql:
+        type: string
+      status:
+        type: string
+        enum: [processing,error,exist,expire]
+      downloaded:
+        type: boolean
+      cdt:
+        type: string
+        format: date-time
+      mdt:
+        type: string
+        format: date-time
+      user:
+        type: string
+      error:
+        type: string
+        
+  FileManagerList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: "#/definitions/FileManager"
+
+  MappingDetail:
+    properties:
+      list:
+        type: array
+        items:
+          type: string
+
+  Recall:        
+    required:
+      - dataset
+      - reason
+      - recall
+    properties:
+      dataset:
+        type: string
+      reason:  
+        type: string
+      recall:  
+        type: boolean        
+
+  Bookmark:
+    required:
+      - id
+      - historyId
+    properties:
+      id:
+        type: string
+      historyId:
+        type: string
+      type:
+        type: string
+        enum: ["1","2","3","4","5","6","7","8","9","10"]
+      name:
+        type: string
+        
+  BookmarkQuery:
+    properties:
+      id:
+        type: string
+      historyId:
+        type: string
+      type:
+        type: string
+      offset:
+        type: integer
+        format: int64
+        default: 0
+      limit:
+        type: integer
+        format: int32
+        default: 100
+        
+  UserAuth:
+    properties:
+      project:
+        type: string
+      dataset:
+        type: string
+      source:
+        type: string
+
+  UserAuthMap:
+    additionalProperties:
+      $ref: "#/definitions/UserAuth"
+
+  UserAuthQuery:
+    properties:
+      datasets:
+        type: array
+        items:
+          type: string
+      offset:
+        type: integer
+        format: int64
+        default: 0
+      limit:
+        type: integer
+        format: int32
+        default: 100
+  
+  UserFavoriteQuery:
+    allOf:
+      - $ref: "#/definitions/UserAuthQuery"
+      
+  UserFavoriteMap:
+    additionalProperties:
+      type: object
+
+  DatasetId:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+
+  UpdateTemplate:
+    required:
+      - desc
+    properties:
+      id:
+        type: string
+      desc:
+        type: string
+      status:
+        type: string
+        enum: [none, init, ok, fail]
+        default: none
+      important:
+        type: string
+        enum: [1,2,3,4,5]
+      on_top:
+        type: boolean
+        default: false
+        
+  TemplateInfo:
+    allOf:
+      - $ref: "#/definitions/UpdateTemplate"
+      - type: object
+        properties:
+          column_id: 
+            type: array
+            items:
+              type: string
+          file_name:
+            type: string
+          file_ext:
+            type: string
+          link:
+            type: string
+          owner:
+            type: string
+          md_id:
+            type: string  
+          ct_date:
+            type: string
+            format: date-time
+            
+  TemplateList:
+    required:
+      - list
+      - size
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/TemplateInfo'
+      size:
+        type: integer
+        format: int32
+
+  News:
+    required:
+      - name
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+      content:
+        type: string  
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+        
+  Dashboard:
+    properties:
+      url:
+        type: string
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+       
+  NewsList:
+    required:
+      - list
+      - size
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/News'
+      size:
+        type: integer
+        format: int32
+
+  ScheduleExportList:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/ScheduleExport'
+      
+  ScheduleExport:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      query:
+        $ref: '#/definitions/GoldenQuery'
+      file_name:
+        type: string
+      template_id:
+        type: string
+      by_week:
+        type: array
+        items:
+          type: string
+          enum: [mon, tue, wed, thur, fri, sat, sun]
+      by_month:
+        type: array
+        items:
+          type: integer
+          format: int32
+          description: dd
+      by_season:
+        type: string   
+        enum: [start, end]
+      by_season_date:
+        type: integer
+        format: int32   
+        description: dd
+      md_id:
+        type: string
+      md_date:
+        type: string
+        format: date-time
+        
+  ScheduleTrigger:
+    properties:
+      ids:
+        type: array
+        items:
+          type: string
+      action:
+        type: string
+        enum: [init, execution]
+        

@@ -1,0 +1,42 @@
+{
+  "name": "one-swagger",
+  "version": "0.0.1",
+  "private": true,
+  "description": "New Swagger API Project",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "concurrently": "^3.6.1",
+    "cors": "^2.8.4",
+    "express": "^4.12.3",
+    "grunt": "1.0.1",
+    "grunt-contrib-clean": "1.1.0",
+    "grunt-contrib-copy": "1.0.0",
+    "swagger-express-mw": "^0.7.0"
+  },
+  "devDependencies": {
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "clean": "node_modules\\.bin\\grunt clean",
+    "mocks:build": "concurrently \"npm run clean\" \"npm run gen:api:node\"",
+    "mocks:start": "node api/mocks/nodejs/index.js",
+    "test": "swagger project test",
+    "genopt:lang": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar",
+    "genopt:api": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar config-help -l spring",
+    "genopt:webapp": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar config-help -l typescript-angular",
+    "genopt:web": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar config-help -l javascript",
+    "gen:api": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar generate -i api/swagger/swagger.yaml -c gen/cfg_api.json -l spring -o gen/out_api",
+    "gen:webapp": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar generate -i api/swagger/swagger.yaml -c gen/cfg_webapp.json -l typescript-angular -o gen/out_webapp",
+    "fgen:webapp": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar generate -i api/swagger/swagger.yaml -c gen/cfg_webapp.json -l typescript-angular -o ../asus-search/src/app/service/one-api",
+    "fgen:golden:webapp": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar generate -i api/swagger/swagger.yaml -c gen/cfg_webapp.json -l typescript-angular -o ../data-market/src/app/service/one-api",
+    "solr:fgen:webapp": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar generate -i api/swagger/solr_api.yml -c gen/cfg_webapp.json -l typescript-angular -o ../asus-search/src/app/service/solar-api",
+    "solr:fgen:golden:webapp": "java -jar gen/jar/swagger-codegen-cli-2.3.1.jar generate -i api/swagger/solr_api.yml -c gen/cfg_webapp.json -l typescript-angular -o ../data-market/src/app/service/solar-api",
+    "gen:autotest": "swagger_py_codegen -s api/swagger/automation.yaml autotest-api -p ../automation/src/app/service/autotest-api --ui --spec",
+    "gen:api:node": "java -jar gen/jar/swagger-codegen-cli-2.2.1.jar generate -i api/swagger/swagger.yaml -l nodejs-server -o gen/out_nodejs"
+  }
+}

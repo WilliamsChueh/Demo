@@ -1,0 +1,2817 @@
+---
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "Hello World App"
+host: "172.16.98.160:24000"
+basePath: "/api"
+schemes:
+- "http"
+- "https"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /album:
+    get:
+      tags:
+      - "Personal Album"
+      operationId: "queryAlbum"
+      consumes: []
+      parameters:
+      - name: "owner"
+        in: "query"
+        description: "album owner"
+        required: false
+        type: "string"
+      - name: "q"
+        in: "query"
+        description: "query 'name', 'desc' field"
+        required: false
+        type: "string"
+      - name: "type"
+        in: "query"
+        description: "query combo"
+        required: false
+        type: "string"
+        enum:
+        - "Shared"
+        - "Follow"
+        - "Shared_OR_follow"
+      - name: "sort"
+        in: "query"
+        required: false
+        type: "string"
+        enum:
+        - "name"
+        - "date"
+        - "count"
+        - "follower"
+        - "popularity"
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        enum:
+        - "asc"
+        - "desc"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "key"
+        required: false
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/AlbumList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/create:
+    post:
+      tags:
+      - "Personal Album"
+      description: "create user's album"
+      operationId: "createAlbum"
+      consumes: []
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "album name"
+        required: true
+        type: "string"
+      - name: "desc"
+        in: "query"
+        description: "album desc"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Album"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/findMyAll:
+    get:
+      tags:
+      - "Personal Album"
+      operationId: "queryMyAllAlbum"
+      consumes: []
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "query 'name', 'desc' field"
+        required: false
+        type: "string"
+      - name: "sort"
+        in: "query"
+        required: false
+        type: "string"
+        enum:
+        - "name"
+        - "date"
+        - "count"
+        - "follower"
+        - "popularity"
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        enum:
+        - "asc"
+        - "desc"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "key"
+        required: false
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/AlbumList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/suggest/{oid}:
+    get:
+      tags:
+      - "Personal Album"
+      operationId: "getSuggestList"
+      consumes: []
+      parameters:
+      - name: "oid"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SuggestList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/{id}:
+    get:
+      tags:
+      - "Personal Album"
+      operationId: "getAlbum"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album uuid"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Album"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+    put:
+      tags:
+      - "Personal Album"
+      description: "update user's album, _id is uuid"
+      operationId: "updateAlbum"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album uuid"
+        required: true
+        type: "string"
+      - name: "name"
+        in: "query"
+        description: "album name"
+        required: false
+        type: "string"
+      - name: "desc"
+        in: "query"
+        description: "album desc"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+    delete:
+      tags:
+      - "Personal Album"
+      description: "delete album"
+      operationId: "deleteAlbum"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album uuid"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/{id}/follow:
+    post:
+      tags:
+      - "Personal Album"
+      description: "get user by sso"
+      operationId: "followAlbum"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+    delete:
+      tags:
+      - "Personal Album"
+      description: "not follow anymore"
+      operationId: "unfollowAlbum"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/{id}/review/approve:
+    post:
+      tags:
+      - "Personal Album"
+      description: "approve review"
+      operationId: "approveReview"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album id"
+        required: true
+        type: "string"
+      - name: "by_user"
+        in: "query"
+        description: "shared by username"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/{id}/review/reject:
+    post:
+      tags:
+      - "Personal Album"
+      description: "reject review"
+      operationId: "rejectReview"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album id"
+        required: true
+        type: "string"
+      - name: "by_user"
+        in: "query"
+        description: "shared by username"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/{id}/share:
+    post:
+      tags:
+      - "Personal Album"
+      description: "share existed album to someone, add to review parts. record share\
+        \ history."
+      operationId: "shareAlbum"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "share"
+        required: true
+        schema:
+          $ref: "#/definitions/ShareHistory"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /album/{id}/tags/{name}:
+    post:
+      tags:
+      - "Personal Album"
+      operationId: "tagAlbum"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album id"
+        required: true
+        type: "string"
+      - name: "name"
+        in: "path"
+        description: "tag name"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+    delete:
+      tags:
+      - "Personal Album"
+      description: "delete album tag"
+      operationId: "deleteAlbumTag"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "album id"
+        required: true
+        type: "string"
+      - name: "name"
+        in: "path"
+        description: "tag name"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "PersonalAlbum"
+  /collection/findMyAll:
+    get:
+      tags:
+      - "Dataset Collect"
+      operationId: "getMyCollections"
+      consumes: []
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/CollectionList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "DatasetCollect"
+  /collection/like/{id}:
+    post:
+      tags:
+      - "Dataset Collect"
+      description: "if albumId is null, put object into unctg(uncategory) album. If\
+        \ not exist, create one.(owner.unctg)"
+      operationId: "like"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "albumId"
+        in: "query"
+        description: "album id"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "DatasetCollect"
+    delete:
+      tags:
+      - "Dataset Collect"
+      description: "remove object from album and collection"
+      operationId: "dislike"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "albumId"
+        in: "query"
+        description: "album id"
+        required: false
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "DatasetCollect"
+  /collection/move:
+    put:
+      tags:
+      - "Dataset Collect"
+      description: "move collections to new album_id, album.md_date need to be updated."
+      operationId: "moveCollection"
+      parameters:
+      - in: "body"
+        name: "data"
+        required: true
+        schema:
+          $ref: "#/definitions/moveCollection"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "DatasetCollect"
+  /collection/{id}:
+    get:
+      tags:
+      - "Dataset Collect"
+      operationId: "getCollections"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/CollectionList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "DatasetCollect"
+  /datasets:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getDatasets"
+      consumes: []
+      parameters:
+      - name: "key"
+        in: "query"
+        description: "key"
+        required: false
+        type: "string"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "key"
+        required: false
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/DatasetList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getDataset"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Dataset"
+        404:
+          description: "NotFound"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "upsert field"
+      operationId: "upsertFiled"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "param"
+        required: true
+        schema:
+          $ref: "#/definitions/FieldParam"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/colType:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getColumnTypes"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/ColTypeMap"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/descs:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getColumnDescs"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/DescList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "upsert descs"
+      operationId: "upsertColumnDesc"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "desc"
+        required: true
+        schema:
+          $ref: "#/definitions/Desc"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete descs"
+      operationId: "deleteColumnDesc"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "col"
+        in: "query"
+        description: "column"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/details:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getColumnDetails"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/DetailList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "update column detail"
+      operationId: "updateColumnDetail"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "extra"
+        required: true
+        schema:
+          $ref: "#/definitions/Detail"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete column detail"
+      operationId: "deleteColumnDetail"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "head"
+        in: "query"
+        description: "column head"
+        required: true
+        type: "string"
+      - name: "col"
+        in: "query"
+        description: "column"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/documents:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getFileList"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/FileList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "upload file"
+      operationId: "uploadDoc"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "file"
+        in: "formData"
+        description: "The file to upload"
+        required: false
+        type: "file"
+      - name: "fid"
+        in: "formData"
+        description: "file id"
+        required: false
+        type: "string"
+      - name: "desc"
+        in: "formData"
+        description: "description"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "upload Success"
+          schema:
+            $ref: "#/definitions/FileData"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/documents/{fid}:
+    get:
+      tags:
+      - "Dataset"
+      description: "download file"
+      operationId: "downloadFile"
+      consumes: []
+      produces: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "fid"
+        in: "path"
+        description: "file id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: "file"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete file"
+      operationId: "deleteFile"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "fid"
+        in: "path"
+        description: "file id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/experts:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getExperts"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/ExpertList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "update Domain Expert"
+      operationId: "updateExpert"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "expert"
+        required: true
+        schema:
+          $ref: "#/definitions/Expert"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete Domain Expert"
+      operationId: "deleteExpert"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "name"
+        in: "query"
+        description: "expert"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/extras:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getExtras"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/ExtraList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "upsert extra"
+      operationId: "upsertExtra"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "extra"
+        required: true
+        schema:
+          $ref: "#/definitions/Extra"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete extra"
+      operationId: "deleteExtra"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "key"
+        in: "query"
+        description: "extrakey"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/maincols:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getMaincols"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/MainColList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "update Main Column"
+      operationId: "updateMainCol"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "extra"
+        required: true
+        schema:
+          $ref: "#/definitions/MainCol"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete Main Column"
+      operationId: "deleteMainCol"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "col"
+        in: "query"
+        description: "column"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/partitions:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getPartitionDescs"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/PartList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "upsert partition"
+      operationId: "upsertParttionDesc"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "desc"
+        required: true
+        schema:
+          $ref: "#/definitions/Partition"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete partition"
+      operationId: "deletePartitionDesc"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "col"
+        in: "query"
+        description: "column"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/sql:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getSqlStmt"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SqlStmtList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/tags:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getTags"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/TagList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    put:
+      tags:
+      - "Dataset"
+      description: "upsert tag"
+      operationId: "upsertTag"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "tag"
+        required: true
+        schema:
+          $ref: "#/definitions/Tag"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+    delete:
+      tags:
+      - "Dataset"
+      description: "delete tag"
+      operationId: "deleteTag"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "name"
+        in: "query"
+        description: "key"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /datasets/{id}/trace:
+    get:
+      tags:
+      - "Dataset"
+      operationId: "getTraceList"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "table id"
+        required: true
+        type: "string"
+      - name: "type"
+        in: "query"
+        description: "type"
+        required: true
+        type: "string"
+        enum:
+        - "Important"
+        - "Startdate"
+        - "Enddate"
+        - "Maintainer"
+        - "Desc"
+        - "ColDesc"
+        - "ColPartition"
+        - "ColExtra"
+        - "Extra"
+      - name: "key"
+        in: "query"
+        description: "key"
+        required: false
+        type: "string"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "limit"
+        required: false
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/TraceList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Dataset"
+  /glossarys:
+    get:
+      tags:
+      - "Glossary"
+      description: "find glossary"
+      operationId: "getGlossary"
+      consumes: []
+      parameters:
+      - name: "key"
+        in: "query"
+        description: "key"
+        required: false
+        type: "string"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "key"
+        required: false
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/GlossaryList"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Glossary"
+    put:
+      tags:
+      - "Glossary"
+      description: "upsert glossary"
+      operationId: "upsertGlossary"
+      parameters:
+      - in: "body"
+        name: "glossary"
+        required: true
+        schema:
+          $ref: "#/definitions/Glossary"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Glossary"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Glossary"
+    delete:
+      tags:
+      - "Glossary"
+      description: "delete glossary"
+      operationId: "deleteGlossary"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "query"
+        description: "glossary id"
+        required: true
+        type: "string"
+      responses:
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Glossary"
+  /golden/dataset/export/{id}:
+    get:
+      tags:
+      - "Golden Strategy"
+      operationId: "export"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Export by History id"
+        required: true
+        type: "string"
+      - name: "template_id"
+        in: "query"
+        description: "merge with template_id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/ExportResponse"
+        400:
+          description: "Bad request"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/findByRegion/{region}:
+    get:
+      tags:
+      - "Golden Strategy"
+      operationId: "findByRegion"
+      consumes: []
+      parameters:
+      - name: "region"
+        in: "path"
+        description: "Region Name"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/GoldenDatasetList"
+        400:
+          description: "Bad request"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/query:
+    post:
+      tags:
+      - "Golden Strategy"
+      operationId: "execQuery"
+      parameters:
+      - in: "body"
+        name: "query"
+        description: "query object"
+        required: true
+        schema:
+          $ref: "#/definitions/GoldenQuery"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/ResultSet"
+        400:
+          description: "Bad request"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/{id}/column/category:
+    post:
+      tags:
+      - "Golden Strategy"
+      description: "createColumnCategory"
+      operationId: "createColumnCategory"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "categoryName"
+        in: "query"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/{id}/column/category/move:
+    put:
+      tags:
+      - "Golden Strategy"
+      description: "move Columns to new Column Category"
+      operationId: "moveColumnCategory"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "data"
+        required: true
+        schema:
+          $ref: "#/definitions/MoveColumnCategory"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/{id}/column/name:
+    put:
+      tags:
+      - "Golden Strategy"
+      description: "updateColumnName"
+      operationId: "updateColumnName"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "data"
+        required: true
+        schema:
+          $ref: "#/definitions/ColumnName"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/{id}/column/{name}/values:
+    get:
+      tags:
+      - "Golden Strategy"
+      description: "getColumnValue"
+      operationId: "getColumnValue"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "name"
+        in: "path"
+        description: "Column Name"
+        required: true
+        type: "string"
+      - name: "q"
+        in: "query"
+        description: "query"
+        required: false
+        type: "string"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        default: 0
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "key"
+        required: false
+        type: "integer"
+        default: 100
+        format: "int32"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SimpleResultSet"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/{id}/region:
+    put:
+      tags:
+      - "Golden Strategy"
+      description: "upsert Golden Region info"
+      operationId: "upsertRegion"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "region"
+        in: "query"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/dataset/{id}/template:
+    get:
+      tags:
+      - "Golden Strategy"
+      operationId: "getTemplateList"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/FileList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+    put:
+      tags:
+      - "Golden Strategy"
+      description: "upload Golden Template"
+      operationId: "uploadTemplate"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "file"
+        in: "formData"
+        description: "The file to upload"
+        required: false
+        type: "file"
+      - name: "fid"
+        in: "formData"
+        description: "file id"
+        required: false
+        type: "string"
+      - name: "desc"
+        in: "formData"
+        description: "description"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "upload Success"
+          schema:
+            $ref: "#/definitions/FileData"
+        default:
+          description: "Error"
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/datasets/{id}/template/{fid}:
+    get:
+      tags:
+      - "Golden Strategy"
+      description: "download file"
+      operationId: "downloadTemplate"
+      consumes: []
+      produces: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "fid"
+        in: "path"
+        description: "template id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: "file"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+    delete:
+      tags:
+      - "Golden Strategy"
+      description: "delete file"
+      operationId: "deleteTemplate"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "fid"
+        in: "path"
+        description: "template id"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/history/{id}/follow:
+    post:
+      tags:
+      - "Golden Strategy"
+      description: "add Golden History to personal userdata with {user}"
+      operationId: "followHistory"
+      consumes: []
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "history uuid"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /golden/history/{oid}:
+    get:
+      tags:
+      - "Golden Strategy"
+      description: "find Golden History of single dataset"
+      operationId: "getHistory"
+      consumes: []
+      parameters:
+      - name: "oid"
+        in: "path"
+        description: "(project.table)"
+        required: true
+        type: "string"
+      - name: "type"
+        in: "query"
+        required: false
+        type: "string"
+        enum:
+        - "my_follow"
+        - "my_own"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        default: 0
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "key"
+        required: false
+        type: "integer"
+        default: 100
+        format: "int32"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/GoldenHistoryList"
+        400:
+          description: "Bad request"
+        404:
+          description: "Not found"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "GoldenStrategy"
+  /login:
+    post:
+      tags:
+      - "common"
+      summary: "login"
+      description: "Post login info"
+      operationId: "login"
+      parameters:
+      - in: "body"
+        name: "loginInfo"
+        required: true
+        schema:
+          $ref: "#/definitions/LoginReq"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/LoginRsp"
+        400:
+          description: "(-5) api version error, (-6) not enough input info"
+        403:
+          description: "Permission denied"
+        404:
+          description: "Failure"
+      x-swagger-router-controller: "Common"
+  /stats/hits:
+    post:
+      tags:
+      - "Statistic"
+      description: "insert user's hits behavior, _id is uuid"
+      operationId: "recordHits"
+      parameters:
+      - in: "body"
+        name: "hits"
+        required: true
+        schema:
+          $ref: "#/definitions/Hits"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "Statistic"
+  /swagger:
+    x-swagger-pipe: "swagger_raw"
+  /user:
+    get:
+      tags:
+      - "UserProfile"
+      description: "if not exits, create one."
+      operationId: "getUserProfile"
+      consumes: []
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/UserProfile"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "UserProfile"
+    put:
+      tags:
+      - "UserProfile"
+      description: "update user's profile, _id is user account"
+      operationId: "updateUserProfile"
+      parameters:
+      - in: "body"
+        name: "userProfile"
+        description: "SimpleUserProfile"
+        required: true
+        schema:
+          $ref: "#/definitions/SimpleUser"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "UserProfile"
+  /user/find:
+    get:
+      tags:
+      - "UserProfile"
+      operationId: "queryUser"
+      consumes: []
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "user account"
+        required: false
+        type: "string"
+      - name: "offset"
+        in: "query"
+        description: "offset"
+        required: false
+        type: "integer"
+        format: "int64"
+      - name: "limit"
+        in: "query"
+        description: "key"
+        required: false
+        type: "integer"
+        format: "int32"
+      - name: "sort"
+        in: "query"
+        required: false
+        type: "string"
+        enum:
+        - "name"
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        enum:
+        - "asc"
+        - "desc"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SimpleUserList"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "UserProfile"
+  /user/{user}/follow:
+    post:
+      tags:
+      - "UserProfile"
+      description: "add personal fans"
+      operationId: "addFollower"
+      consumes: []
+      parameters:
+      - name: "user"
+        in: "path"
+        description: "user account"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "UserProfile"
+    delete:
+      tags:
+      - "UserProfile"
+      description: "not follow anymore"
+      operationId: "removeFollower"
+      consumes: []
+      parameters:
+      - name: "user"
+        in: "path"
+        description: "user account"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        default:
+          description: "Error"
+      security:
+      - apiKey: []
+      x-swagger-router-controller: "UserProfile"
+  /version:
+    get:
+      tags:
+      - "common"
+      summary: "veriosn info"
+      description: "retrun version and datetime"
+      operationId: "getVersionInfo"
+      consumes: []
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Version"
+      x-swagger-router-controller: "Common"
+securityDefinitions:
+  apiKey:
+    type: "apiKey"
+    name: "api-key"
+    in: "header"
+definitions:
+  Response:
+    properties:
+      message:
+        type: "string"
+  Version:
+    required:
+    - "ver"
+    properties:
+      ver:
+        type: "string"
+        minLength: 5
+        maxLength: 8
+      docLink:
+        type: "string"
+      tagLink:
+        type: "string"
+      searchLink:
+        type: "string"
+      msg:
+        type: "string"
+      datetime:
+        type: "string"
+        format: "date-time"
+  LoginReq:
+    required:
+    - "ssokey"
+    properties:
+      ssokey:
+        type: "string"
+  LoginRsp:
+    required:
+    - "legacy_token"
+    - "token"
+    properties:
+      token:
+        type: "string"
+      legacy_token:
+        type: "string"
+      me:
+        $ref: "#/definitions/User"
+  User:
+    properties:
+      workId:
+        type: "string"
+      userId:
+        type: "string"
+      domain:
+        type: "string"
+      name:
+        type: "string"
+  Dataset:
+    required:
+    - "id"
+    - "name"
+    properties:
+      id:
+        type: "string"
+      name:
+        type: "string"
+      project:
+        type: "string"
+      desc:
+        type: "string"
+      mdt:
+        type: "string"
+        format: "date-time"
+      aliMdt:
+        type: "string"
+        format: "date-time"
+      important:
+        type: "string"
+      popularity:
+        type: "string"
+      rowCount:
+        type: "integer"
+        format: "int64"
+      startDate:
+        type: "string"
+      endDate:
+        type: "string"
+      maintainer:
+        type: "string"
+      experts:
+        type: "array"
+        items:
+          type: "string"
+      tags:
+        type: "array"
+        items:
+          type: "string"
+      maincols:
+        type: "array"
+        items:
+          type: "string"
+      docset:
+        type: "array"
+        items:
+          type: "string"
+      colExtra:
+        $ref: "#/definitions/ColumnExtraMap"
+      colDesc:
+        $ref: "#/definitions/DescMap"
+      partColDesc:
+        $ref: "#/definitions/DescMap"
+      colType:
+        $ref: "#/definitions/ColTypeMap"
+      extra:
+        $ref: "#/definitions/DescMap"
+  DatasetList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Dataset"
+      hasNext:
+        type: "boolean"
+  TraceType:
+    type: "string"
+    enum:
+    - "Important"
+    - "Startdate"
+    - "Enddate"
+    - "Maintainer"
+    - "Desc"
+    - "ColDesc"
+    - "ColPartition"
+    - "ColExtra"
+    - "Extra"
+  Trace:
+    properties:
+      value:
+        type: "string"
+      md_id:
+        type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  TraceList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Trace"
+  Tag:
+    required:
+    - "name"
+    properties:
+      name:
+        type: "string"
+      md_id:
+        type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  TagList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Tag"
+  SqlStmtList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          type: "string"
+  Expert:
+    required:
+    - "name"
+    properties:
+      name:
+        type: "string"
+      md_id:
+        type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  ExpertList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Expert"
+  Extra:
+    required:
+    - "key"
+    - "value"
+    properties:
+      key:
+        type: "string"
+      value:
+        type: "string"
+      mdt:
+        type: "string"
+        format: "date-time"
+      mid:
+        type: "string"
+  ExtraList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Extra"
+  Desc:
+    required:
+    - "col"
+    - "value"
+    properties:
+      col:
+        type: "string"
+      value:
+        type: "string"
+      seq:
+        type: "integer"
+        format: "int32"
+      mdt:
+        type: "string"
+        format: "date-time"
+      mid:
+        type: "string"
+  DescList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Desc"
+  Partition:
+    required:
+    - "col"
+    - "value"
+    properties:
+      col:
+        type: "string"
+      value:
+        type: "string"
+      mdt:
+        type: "string"
+        format: "date-time"
+      mid:
+        type: "string"
+  PartList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Partition"
+  MainCol:
+    required:
+    - "name"
+    properties:
+      name:
+        type: "string"
+      md_id:
+        type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  MainColList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/MainCol"
+  Detail:
+    required:
+    - "col"
+    - "head"
+    - "value"
+    properties:
+      head:
+        type: "string"
+      col:
+        type: "string"
+      value:
+        type: "string"
+      mdt:
+        type: "string"
+        format: "date-time"
+      mid:
+        type: "string"
+  DetailList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Detail"
+  ColTypeMap:
+    type: "object"
+    additionalProperties:
+      type: "string"
+  DescMap:
+    type: "object"
+    additionalProperties:
+      type: "string"
+  ColumnExtraMap:
+    type: "object"
+    additionalProperties:
+      $ref: "#/definitions/DescMap"
+  FieldType:
+    type: "string"
+    enum:
+    - "Important"
+    - "Startdate"
+    - "Enddate"
+    - "Maintainer"
+    - "Desc"
+  FieldParam:
+    required:
+    - "type"
+    properties:
+      type:
+        $ref: "#/definitions/FieldType"
+      value:
+        type: "string"
+  FileData:
+    required:
+    - "id"
+    properties:
+      id:
+        type: "string"
+      filename:
+        type: "string"
+      link:
+        type: "string"
+      desc:
+        type: "string"
+      mdt:
+        type: "string"
+        format: "date-time"
+      mid:
+        type: "string"
+  FileList:
+    required:
+    - "list"
+    - "size"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/FileData"
+      size:
+        type: "integer"
+        format: "int32"
+  Glossary:
+    required:
+    - "desc"
+    - "key"
+    properties:
+      id:
+        type: "string"
+      key:
+        type: "string"
+      desc:
+        type: "string"
+  GlossaryList:
+    required:
+    - "list"
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Glossary"
+      hasNext:
+        type: "boolean"
+  Hits:
+    required:
+    - "detail"
+    - "type"
+    properties:
+      user:
+        type: "string"
+      ip:
+        type: "string"
+      locale:
+        type: "string"
+      type:
+        type: "string"
+        enum:
+        - "dataset"
+        - "func"
+      detail:
+        type: "string"
+        description: "(project.table) or 'function name'"
+  Album:
+    required:
+    - "md_date"
+    - "name"
+    - "owner"
+    properties:
+      id:
+        type: "string"
+      name:
+        type: "string"
+      desc:
+        type: "string"
+      owner:
+        type: "string"
+      owner_name:
+        type: "string"
+      popularity:
+        type: "string"
+      tags:
+        type: "array"
+        items:
+          $ref: "#/definitions/Tag"
+      items:
+        type: "array"
+        items:
+          $ref: "#/definitions/AlbumDataSet"
+      shared:
+        type: "array"
+        items:
+          $ref: "#/definitions/SharedItem"
+      follow:
+        type: "array"
+        items:
+          $ref: "#/definitions/FollowItem"
+      like_by_me:
+        type: "boolean"
+      shared_to_me:
+        $ref: "#/definitions/SharedItem"
+      follow_by_me:
+        $ref: "#/definitions/FollowItem"
+      del:
+        type: "boolean"
+      md_date:
+        type: "string"
+        format: "date-time"
+  AlbumList:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Album"
+      total_size:
+        type: "integer"
+        format: "int32"
+      hasNext:
+        type: "boolean"
+  AlbumDataSet:
+    properties:
+      url:
+        type: "string"
+      project:
+        type: "string"
+      name:
+        type: "string"
+        description: "(project.table)"
+      desc:
+        type: "string"
+      popularity:
+        type: "string"
+  SuggestItem:
+    properties:
+      id:
+        type: "string"
+        description: "(project.table)"
+      prject_name:
+        type: "string"
+      table_name:
+        type: "string"
+      table_desc:
+        type: "string"
+      album_name:
+        type: "array"
+        items:
+          type: "string"
+  SuggestList:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/SuggestItem"
+      hasNext:
+        type: "boolean"
+  SharedItem:
+    properties:
+      who:
+        type: "string"
+      by_user:
+        type: "string"
+      by_user_name:
+        type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  FollowItem:
+    properties:
+      who:
+        type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  ShareHistory:
+    required:
+    - "id"
+    - "md_date"
+    - "to_user"
+    properties:
+      id:
+        type: "string"
+        description: "album id"
+      to_user:
+        type: "array"
+        items:
+          type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  ReviewItem:
+    required:
+    - "album_id"
+    - "by_user"
+    - "md_date"
+    properties:
+      album_id:
+        type: "string"
+        description: "album._id"
+      album_name:
+        type: "string"
+      album_desc:
+        type: "string"
+      album_owner:
+        type: "string"
+      album_items:
+        type: "string"
+        description: "items count"
+      album_follower:
+        type: "string"
+        description: "follower count"
+      album_shared:
+        type: "string"
+        description: "shared count"
+      by_user:
+        type: "string"
+        description: "who sugguest these items"
+      md_date:
+        type: "string"
+        format: "date-time"
+  UserProfile:
+    required:
+    - "user"
+    properties:
+      user:
+        type: "string"
+        description: "user account"
+      name:
+        type: "string"
+        description: "full user account"
+      department:
+        type: "string"
+      share:
+        $ref: "#/definitions/UserProfile_share"
+      album_review:
+        type: "array"
+        items:
+          $ref: "#/definitions/ReviewItem"
+      fans:
+        type: "array"
+        items:
+          type: "string"
+          description: "user account"
+      follows:
+        type: "array"
+        items:
+          type: "string"
+          description: "user account"
+      ali:
+        $ref: "#/definitions/AliUser"
+      md_date:
+        type: "string"
+        format: "date-time"
+  SimpleUser:
+    properties:
+      user:
+        type: "string"
+      name:
+        type: "string"
+      department:
+        type: "string"
+      ali:
+        $ref: "#/definitions/AliUser"
+      albums:
+        type: "integer"
+        format: "int32"
+      fans:
+        type: "array"
+        items:
+          type: "string"
+          description: "user account"
+      follows:
+        type: "array"
+        items:
+          type: "string"
+          description: "user account"
+      md_date:
+        type: "string"
+        format: "date-time"
+  AliUser:
+    properties:
+      id:
+        type: "string"
+      user:
+        type: "string"
+  SimpleUserList:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/SimpleUser"
+      total_size:
+        type: "integer"
+        format: "int32"
+      hasNext:
+        type: "boolean"
+  Collection:
+    properties:
+      id:
+        type: "string"
+      album_id:
+        type: "string"
+      album_name:
+        type: "string"
+      album_desc:
+        type: "string"
+      album_owner:
+        type: "string"
+      album_owner_name:
+        type: "string"
+      source:
+        type: "string"
+        enum:
+        - "like"
+        - "shared"
+        - "follow"
+        - "shared_and_follow"
+      md_date:
+        type: "string"
+        format: "date-time"
+  CollectionList:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/Collection"
+  moveCollection:
+    properties:
+      collections:
+        type: "array"
+        items:
+          type: "string"
+          description: "(project.table)"
+      org_album_id:
+        type: "string"
+      new_album_id:
+        type: "string"
+  ColumnName:
+    properties:
+      id:
+        type: "string"
+      zh_tw:
+        type: "string"
+      en_us:
+        type: "string"
+      main:
+        type: "boolean"
+  ColumnNameList:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/ColumnInfo"
+  ColumnInfo:
+    allOf:
+    - $ref: "#/definitions/ColumnName"
+  ColumnCategory:
+    properties:
+      categories:
+        type: "array"
+        items:
+          $ref: "#/definitions/ColumnCategory_categories"
+  MoveColumnCategory:
+    properties:
+      columns:
+        type: "array"
+        items:
+          type: "string"
+          description: "Column Name"
+      org_category_name:
+        type: "string"
+      new_category_name:
+        type: "string"
+  GoldenDataset:
+    properties:
+      id:
+        type: "string"
+      region:
+        type: "string"
+      columnName:
+        $ref: "#/definitions/ColumnNameList"
+      columnCategory:
+        $ref: "#/definitions/ColumnCategory"
+  GoldenDatasetList:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/GoldenDataset"
+  GoldenHistory:
+    properties:
+      id:
+        type: "string"
+        description: "Query History id"
+      url_pattern:
+        type: "string"
+        description: "for short link"
+      user:
+        type: "string"
+      md_date:
+        type: "string"
+        format: "date-time"
+  GoldenHistoryList:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/GoldenHistory"
+  ResultSet:
+    properties:
+      columns:
+        type: "array"
+        items:
+          $ref: "#/definitions/ResultSet_columns"
+      row_count:
+        type: "integer"
+        format: "int64"
+        default: 0
+      result:
+        type: "array"
+        items:
+          type: "object"
+  SimpleResultSet:
+    properties:
+      data:
+        type: "array"
+        items:
+          type: "string"
+  GoldenCond:
+    required:
+    - "column"
+    - "type"
+    - "value"
+    properties:
+      column:
+        type: "string"
+      type:
+        type: "string"
+        enum:
+        - "string"
+        - "number"
+        - "date"
+      value:
+        type: "array"
+        items:
+          $ref: "#/definitions/GoldenCond_value"
+  GoldenQuery:
+    properties:
+      id:
+        type: "string"
+        description: "dataset id"
+      columns:
+        type: "array"
+        items:
+          type: "string"
+      condition:
+        type: "array"
+        items:
+          $ref: "#/definitions/GoldenCond"
+  ExportResponse:
+    properties:
+      download_url:
+        type: "string"
+  UserProfile_share:
+    properties:
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/ShareHistory"
+  ColumnCategory_categories:
+    properties:
+      filter:
+        type: "string"
+      category:
+        type: "string"
+      columns:
+        type: "array"
+        items:
+          type: "string"
+  ResultSet_columns:
+    properties:
+      id:
+        type: "string"
+      type:
+        type: "string"
+  GoldenCond_value:
+    properties:
+      op:
+        type: "string"
+        enum:
+        - "in"
+        - "gt"
+        - "gte"
+        - "lt"
+        - "lte"
+      data:
+        type: "array"
+        items:
+          type: "string"

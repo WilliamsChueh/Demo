@@ -1,0 +1,46 @@
+image: 'docker:latest'
+stages:
+    - build
+    - release
+    - deploy
+.release_template:
+    stage: release
+    script:
+        - 'docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN misci.asus.com:5500'
+        - 'docker build -t $PROJECT_IMAGE .'
+        - 'docker push $PROJECT_IMAGE'
+.deploy_template:
+    image: 'misci.asus.com:5500/itctc/linux/debian'
+    stage: deploy
+    before_script:
+        - 'sed -i s/DEPLOY_IMAGE/${DEPLOY_IMAGE////\\/}/g $MARATHON_FILE'
+        - 'sed -i s/PROJECT_PATH/${PROJECT_PATH////\\/}/g $MARATHON_FILE'
+    script:
+        - 'curl http://$MESOS_HOST/service/marathon/v2/apps/$PROJECT_PATH?force=true -H "Content-type: application/json" -X PUT -d @$MARATHON_FILE'
+dev-release:
+    stage: release
+    script:
+        - 'docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN misci.asus.com:5500'
+        - 'docker build -t $PROJECT_IMAGE .'
+        - 'docker push $PROJECT_IMAGE'
+    variables:
+        PROJECT_IMAGE: '$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME'
+    only:
+        - master
+dev:
+    image: 'misci.asus.com:5500/itctc/linux/debian'
+    stage: deploy
+    before_script:
+        - 'sed -i s/DEPLOY_IMAGE/${DEPLOY_IMAGE////\\/}/g $MARATHON_FILE'
+        - 'sed -i s/PROJECT_PATH/${PROJECT_PATH////\\/}/g $MARATHON_FILE'
+    script:
+        - 'curl http://$MESOS_HOST/service/marathon/v2/apps/$PROJECT_PATH?force=true -H "Content-type: application/json" -X PUT -d @$MARATHON_FILE'
+    variables:
+        PROJECT_PATH: oneui/dev/$CI_PROJECT_NAME
+        MARATHON_FILE: marathon.json
+        MESOS_HOST: $DEV_MESOS_HOST
+        DEPLOY_IMAGE: '$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME'
+    after_script:
+        - 'curl -H "Content-Type: application/json" -X POST "http://$MESOS_HOST/service/marathon/v2/apps/$PROJECT_PATH/restart?force=true"'
+    only:
+        - master

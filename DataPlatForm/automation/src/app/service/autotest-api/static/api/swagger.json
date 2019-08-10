@@ -1,0 +1,392 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Data Platform Automation Test Api"
+  },
+  "basePath": "/api",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/test/case/dryrun": {
+      "post": {
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DryTestCaseList"
+            }
+          }
+        ],
+        "tags": [
+          "Api"
+        ],
+        "operationId": "dryrunTestCase",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/PreCheckResult"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "default": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/test/case": {
+      "get": {
+        "tags": [
+          "Api"
+        ],
+        "operationId": "getTestCase",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/TestCaseList"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "default": {
+            "description": "Error"
+          }
+        }
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReqTestCaseList"
+            }
+          }
+        ],
+        "tags": [
+          "Api"
+        ],
+        "operationId": "execTestCase",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/TestResult"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "default": {
+            "description": "Error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RequestCase": {
+      "properties": {
+        "id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "TestResult": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "uuid"
+        },
+        "fail_count": {
+          "type": "number"
+        },
+        "fail_case": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FailCase"
+          }
+        },
+        "test_case": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReqTestCase"
+          }
+        },
+        "detail_test_case": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TestCase"
+          }
+        },
+        "exec_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TestCaseList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TestCase"
+      }
+    },
+    "DryTestCaseList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/DryTestCase"
+      }
+    },
+    "ReqTestCaseList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReqTestCase"
+      }
+    },
+    "BaseTestCase": {
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "DryTestCase": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseTestCase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "controller": {
+              "type": "string",
+              "enum": [
+                "id",
+                "group"
+              ]
+            },
+            "next": {
+              "$ref": "#/definitions/NextDryTestCase"
+            }
+          }
+        }
+      ]
+    },
+    "NextDryTestCase": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseTestCase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "controller": {
+              "type": "string",
+              "enum": [
+                "id",
+                "group"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ReqTestCase": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseTestCase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "controller": {
+              "type": "string",
+              "enum": [
+                "id",
+                "group"
+              ]
+            },
+            "next": {
+              "$ref": "#/definitions/NextReqTestCase"
+            },
+            "parallel": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "NextReqTestCase": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseTestCase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "controller": {
+              "type": "string",
+              "enum": [
+                "id",
+                "group"
+              ]
+            },
+            "parallel": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "PreCheckResult": {
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "OK",
+            "FAIL"
+          ]
+        },
+        "error": {
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/definitions/ReqTestCaseList"
+        }
+      }
+    },
+    "FailCase": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseTestCase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "group": {
+              "type": "string"
+            },
+            "fail_reason": {
+              "type": "string"
+            },
+            "sequence": {
+              "type": "string"
+            },
+            "parallel": {
+              "type": "number",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+              ]
+            },
+            "before": {
+              "$ref": "#/definitions/ReqTestCase"
+            }
+          }
+        }
+      ]
+    },
+    "TestCase": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseTestCase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "group": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "OK",
+                "FAIL"
+              ]
+            },
+            "fail_reason": {
+              "type": "string"
+            },
+            "sequence": {
+              "type": "string",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+              ]
+            },
+            "parallel": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
